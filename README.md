@@ -1,4 +1,10 @@
-# Intro-NGS_2016-03-31
+# Introduction To NGS Data & Analytic Tools
+
+A full day workshop run on 31-March 2016
+
+Presented by the [University of Adelaide, Bioinformatics Hub](https://www.adelaide.edu.au/bioinformatics-hub/)
+
+The latest versions of the material are available for download [here](http://uofabioinformaticshub.github.io/Intro-NGS_2016-03-31/)
 
 License
 =======
