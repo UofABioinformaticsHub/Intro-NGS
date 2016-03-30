@@ -8,7 +8,8 @@ git:
 before_install:
   - git submodule update --init --recursive
 #before_script:
-#  - cd ./developers/ && sudo -E ./texlive_install.sh && cd ../
+  - cd ./developers/ && sudo -E ./texlive_install.sh && cd ../
+  - tlmgr update --all
 script:
   - sudo -E make tex_env
   - make all
