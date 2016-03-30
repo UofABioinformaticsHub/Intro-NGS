@@ -6,7 +6,7 @@
 # A list of mirrors can be found at http://ctan.org/mirrors
 
 # e.g. before running this script do:
-CTAN_MIRROR_URL='http://mirror.aarnet.edu.au/pub/CTAN'
+CTAN_MIRROR_URL='http://mirror.ctan.org'
 
 wget \
   --continue \
