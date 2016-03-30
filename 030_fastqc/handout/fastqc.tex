@@ -1,0 +1,285 @@
+\setModuleTitle{FASTQC}
+\setModuleAuthors{%
+    Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
+}
+\setModuleContributions{%
+  Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
+  Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
+}
+
+\chapter{\moduleTitle}
+\newpage
+
+\section{Using fastqc}
+\begin{steps}
+Removal of low-confidence base calls is an important part of any NGS analysis, and we can begin this process by checking the quality of libraries using the tool \texttt{fastqc}.
+As with all programs on the command line, we need to see how it works before we use it.
+The following command will open the help file in the \texttt{less} pager which we used earlier.
+To navigate through the file, use the \textless spacebar\textgreater ~to move forward a page, \textless \texttt{b}\textgreater ~to move back a page \& \textless \texttt{q}\textgreater ~to exit the manual. \\
+\begin{lstlisting}
+fastqc -h | less
+\end{lstlisting}
+\end{steps}
+
+\begin{note}
+Fastqc will create an html report on each file you submit, which can be opened from any web browser, such as \texttt{firefox}
+As seen in the help page, \texttt{fastqc} can be run from the command line or from a graphic user interface (GUI).
+Using a GUI is generally intuitive, so today we will look at the command line usage, as that will give you more flexibility \& options going forward.
+Some important options for the command can be seen in the manual.\\
+\end{note}
+\begin{steps}
+As you will see in the manual, setting the \texttt{-h} option as above will call the help page.
+Look up the following options to find what they mean. \\
+\begin{center}
+\begin{tabular}[h]{|p{4cm}|p{8cm}|}
+  \hline
+  \textbf{Option} & \textbf{Usage} \\
+  \hline
+  -o & \\
+   & \\
+   \hline
+  -t & \\
+   & \\
+   \hline
+   -{}-casava & \\
+   & \\
+   \hline
+\end{tabular}
+\end{center}
+\end{steps}
+
+\begin{steps}
+As we have two RNA-Seq files, we will first need to create the output directory, then we can run \texttt{fastqc} using 2 threads which will ensure the files are processed in parallel.
+This can be much quicker when dealing with large experiments.
+\begin{lstlisting}
+cd ~/NGSData/RNASeq/rawData
+mkdir -p ~/QC/RNASeq/rawData
+fastqc -o ~/QC/RNASeq/rawData -t 2 reads1.fq.gz reads2.fq.gz
+\end{lstlisting}
+It's probably a good idea to scribble a note next to each line if you didn't understand what you did.
+If you haven't seen the command \texttt{mkdir} before, check the help page 
+\begin{lstlisting}
+man mkdir
+\end{lstlisting}
+\end{steps}
+
+\begin{steps}
+The above command gave both files to fastqc, told it where to write the output (\texttt{-o \~{}/QC}) \& requested two threads (\texttt{-t 2}). 
+The reports are in the html files, with all of the plots stored in the zip files. 
+To look at the QC report for each file, we can use \texttt{firefox}.
+\begin{lstlisting}
+cd ~/QC/RNASeq/rawData
+ls -lh
+firefox reads1.fq_fastqc.html reads2.fq_fastqc.html &
+\end{lstlisting}
+The left hand menu contains a series of click-able links to navigate through the report, with a quick guideline about each section given as a tick, cross of exclamation mark.
+\end{steps}
+
+\begin{note}
+Two hints which may make your inspection of these files easier are:
+\begin{enumerate}
+	\item To zoom out in \texttt{firefox} use the shortcut Ctrl-. Reset using Ctrl0 and zoom in using Ctrl+
+	\item You can open these directly from a traditional directory view by double clicking on the .html file.
+\end{enumerate}
+If your terminal seems busy after you close \texttt{firefox}, use the 'Ctrl C' shortcut to stop whatever is keeping it busy
+\end{note}
+
+\begin{questions}
+How many reads are there in both files?\\
+\begin{answer}
+  2500000 \\
+\end{answer}
+How long are the reads in these files?\\
+\begin{answer}
+  37bp \\
+\end{answer}
+\end{questions}
+
+\section{Interpreting the FASTQC Report}
+\begin{note}
+As we work through the QC reports we will develop a series of criteria for filtering and cleaning up our files.
+There is usually no perfect solution, we just have to make the best decisions we can based on the information we have.
+Some sections will prove more informative than others, and some will only be helpful if we are drilling deeply into our data.
+Firstly we'll just look at a selection of the plots.
+We'll investigate some of the others with some `bad' data later.
+\end{note}
+
+\subsubsection*{Per Base Sequence Quality}
+\begin{steps}
+Both of the files should be open in \texttt{firefox} in separate tabs.
+Perform the following steps on both files.
+Click on the \texttt{Per base sequence quality} hyperlink on the left of the page \& you will see a boxplot of the QC score distributions for every position in the read.
+This is the main plot that researchers will look at for making informed decisions about later stages of the analysis.
+\end{steps}
+
+\begin{questions}
+What do you notice about the QC scores as you progress through the read? \\
+\begin{answer}
+They clearly drop off as the read extends.\\
+\end{answer} 
+\end{questions}
+
+We will deal with trimming the reads in a later section, but start to think about what you should do to these reads to ensure the highest quality in your final alignment \& analysis.
+
+\paragraph{Per Tile Sequence Quality}
+This section just gives a quick visualisation about any physical effects on sequence quality due to the tile within the each flowcell.
+For the first file, you will notice an even breakdown in the quality of sequences near the end of the reads across all tiles.
+In our second QC report, you will notice a poor quality around the 25th base in the 2nd (or 3rd) tile.
+Generally, this would only be of note if drilling deeply to remove data from tiles with notable problems.
+Most of the time we don't factor in spatial effects, unless alternative approaches fail to address the issues we are dealing with.
+
+\paragraph*{Per Sequence Quality Scores}
+This is just the distribution of average quality scores for each sequence.
+There's not much of note for us to see here.
+
+\paragraph{Per Base Sequence Content}
+This will often show artefacts from barcode sequences or adapters early in the reads, before stabilising to show a relatively even distribution of the bases.
+
+\paragraph{Sequence Duplication Levels}
+This plot shows about what you'd expect from an RNA-Seq experiment.
+There are a few duplicated sequences (rRNA?, highly expressed genes? etc.) and lots of unique sequences represented the diverse transcriptome.
+This is only calculated on a small sample of the library for computational efficiency and is just to give a rough guide if anything unusual stands out
+
+\paragraph{Kmer Content}
+Statistically over-represented sequences can be seen here \& often they will overlap. 
+In our first plot, the some sequences derive from the same motif, and are the extracts of the same longer sequence, just shifted along one base.
+No information is given as the source of these sequences, and you would expect to see barcode sequences or motifs that correspond to any digestion protocols here.
+This is a plot that can cause significant confusion, but can alert you to any unexpected sequence-based problems in your data.
+
+\subsection{Some Flawed Data}
+Let's run \texttt{fastqc} \& inspect the iCLIP dataset, which is a version of RNA-Seq data where the RNA has been pulled down via IP after cross-linking to an RNA-associated protein.
+
+\begin{lstlisting}
+mkdir -p ~/QC/iCLIP/rawData
+cd ~/NGSData/iCLIP/rawData
+fastqc -o ~/QC/iCLIP/rawData -t 2 iCLIP_Sample1.fastq iCLIP_Sample2.fastq
+cd ~/QC/iCLIP/rawData
+firefox iCLIP_Sample1_fastqc.html iCLIP_Sample2_fastqc.html &
+\end{lstlisting}
+
+There are several things to note about these reports.
+Firstly, we know from inspection that these fastq libraries contain reads which have failed the Illumina Chastity filter.
+We would expect these to show up in the \textit{Basic Statistics} table, but they don't by default.
+
+\begin{questions}
+How would we know that there are low quality reads here if the Illumina flag is ignored?\\
+\begin{answer}
+The overall lower distribution of the quality scores should raise a red flag to us. \\
+\end{answer}
+\end{questions}
+
+To see how these reads look without the flagged reads, we can turn on the \texttt{-{}-casava} option when running \texttt{fastqc}.
+You can ignore any warning messages you receive about not looking like part of a CASAVA group.
+
+\begin{lstlisting}
+cd ~/NGSData/iCLIP/rawData
+fastqc --casava -o ~/QC/iCLIP/rawData -t 2 iCLIP_Sample1.fastq iCLIP_Sample2.fastq
+cd ~/QC/iCLIP/rawData
+firefox iCLIP_Sample1_fastqc.html iCLIP_Sample2_fastqc.html &
+\end{lstlisting}
+
+\begin{information}
+Note that the above code will have over-written the original QC reports.
+As this second analysis is the best approach, this is actually OK at this point.
+However. this can be a common pitfall when running an analysis, which is why we will often record our analysis as a script.
+That way we have a record of what we have done and know exactly what options we have set for a process.
+\end{information}
+
+
+\paragraph{Adapter Contamination}
+Go to the over-represented sequences section for Sample1.
+There seem to be a large number of over-represented sequences here which are not listed as matching any known sequences.
+Scanning through these manually is near impossible and solving this may take some leg work.
+Shift over to the same section in Sample2 and you will notice about 23\% of sequences seem to contain an Illumina Paired End PCR Primer.
+The next line also contains matches to this but with some indels. \\
+
+Now head to the \textit{Adapter Content} section of each report \& consider what we are seeing here.
+By the time you reach the 60th nucleotide in the reads from Sample1, this plot tells you that $>50$\% of reads contain matches to the Illumina Universal Adapter.
+
+
+\subsection{Some More Example Reports}
+We'll actually try to clean the iCLIP dataset up in the next chapter, but for now let's just head to another sample plot at \url{http://www.bioinformatics.babraham.ac.uk/projects/fastqc/bad\_sequence\_fastqc.html}
+
+
+\paragraph{Per Base Sequence Quality}
+Looking at the first plot, we can clearly see this data is not as high quality as the one we have been exploring ourselves.
+
+\begin{questions}
+Consider that the minimum sequence length required for confidently obtaining unique alignments is >20bp.
+Two approaches to this data might be to only include high quality sequences, or to trim the low quality bases from the ends and use shorter reads for downstream analysis.
+What would be the consequences of either approach? \\
+\begin{answer}
+If we excluded low quality sequences, we would throw away a large amount of data.
+Depending on the question we are asking of the data, this may render our experiment meaningless or may help us find more accurate results.
+Context is everything. \\
+If we trimmed the reads, we may retain a larger number of them, but more may map to non-unique locations in the reference.
+Once again, context is everything.\\
+\end{answer}
+\end{questions}
+
+\paragraph{Per Tile Sequence Quality}
+Some physical artefacts are visible \& some tiles seem to be consistently lower quality.
+Whichever approach we take to cleaning the data will more than likely account for any of these artefacts.
+Sometimes it's just helpful to know where a problem has arisen.
+
+\paragraph{Overrepresented Sequences}
+Head to this section of the report \& scan down the list.
+Unlike our sample data, there seem to be a lot of enriched sequences of unknown origin.
+There is one hit to an Illumina adaptor sequence, so we know at least one of the contaminants in the data.
+Note that some of these sequences are the same as others on the list, just shifted one or two base pairs.
+A possible source of this may have been non random fragmentation.
+
+\paragraph{Kmer Content}
+\begin{questions}
+Do you notice anything unusual about this plot?\\
+\begin{answer}
+The K-mers are present at the end of the reads.
+Was this a problem with sample preparation? 
+Do these map to barcodes, adaptors or primers at the other end of the reads? \\
+\end{answer}
+\end{questions}
+
+\begin{information}
+Interpreting the various sections of the report can take time \& experience.
+A description of each of the sections is available from the \texttt{fastqc} authors at \url{http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/}
+\end{information}
+
+\begin{bonus}
+Another interesting report is available at \url{http://www.bioinformatics.babraham.ac.uk/projects/fastqc/RNA-Seq\_fastqc.html}
+Whilst the quality scores generally look pretty good for this one, see if you can find a point of interest in this data.
+This is a good example, of why just skimming the first plot may not be such a good idea.
+\end{bonus}
+
+\begin{advanced}
+In our dataset of two samples it is quite easy to think about the whole experiment \& assess the overall quality.
+What about if we had 100 samples? 
+Each .zip archive contains text files with the information which can easily be parsed into an overall summary. \\
+
+Whilst this will require low-level scripting skills to perform on an experiment, we can quickly look at two of the important files today.
+The overall summary in terms of PASS/FAIL is contained in the `summary.txt' file within the archive.
+Open this file in the \texttt{less} pager, and once you've had a look type \texttt{q} to quit, as we have become familiar with.
+First make sure you are in the correct directory, then inspect these files using \texttt{less}.
+\begin{lstlisting}
+cd ~/QC/RNASeq/rawData
+unzip -oc reads1.fq_fastqc.zip '*summary.txt' | less
+\end{lstlisting}
+
+The raw numbers for each of the sections are in the file fastqc\_data.txt.
+Page through the file, until you lose interest then quit the pager.
+\begin{lstlisting}
+unzip -oc reads1.fq_fastqc.zip '*fastqc_data.txt' | less
+\end{lstlisting}
+
+We can also extract any specific image file for compiling into a pdf, or find whatever we need by using these ideas.
+This makes handling the data for a large experiment much simpler.
+There are plenty of hints online for how to write a \textit{shell script}, or alternatively, attend one of our scripting workshops.
+\end{advanced}
+
+\section{Further Reading}
+An excellent article which deals with some of the issues around data quality is:
+
+Zhou, X and Rokas, A. (2014). \textit{Prevention, diagnosis and treatment of high-throughput sequencing data pathologies.} Molecular Ecology 23, 1679-1700.
+
+This has been included on your VM as the file QC.pdf \& contains many examples of good data and low quality data, as well as a detailed discussion.
+If you feel like you are running ahead of schedule, or if you finish early it may be a good opportunity to download \& read through the article.
+The workflow given at the end may also be particularly useful.
