@@ -77,7 +77,6 @@ cd
 \end{lstlisting}
 \end{steps}
 
-
 Normally we specify the directory to change into after the command \texttt{cd}, but when no directory is given, this command will automatically change to your home directory.\\
 
 \begin{warning}
@@ -86,24 +85,36 @@ When entering the any commands, please make sure that you pay attention to this 
 Spaces are an important feature as well, so be careful not to add or omit them where they appear in any sample code.
 \end{warning}
 
+\section{Today's Data}
 
+\begin{information}
+Before we begin today's session, we need to download and run a script.
+This will make all the correct directories on your VM and download the data for today's session.
+\end{information}
 
-%Change into this directory \& have a look at the files in the directory by entering the following.
-%\begin{lstlisting}
-%cd ~/NGSData
-%ls -lhR
-%\end{lstlisting}
+\begin{steps}
+The script can be obtained from \url{http://tinyurl.com/hkc77vf}.
+Head to this address using \texttt{firefox} and save this on your VM as the script \texttt{getNGSData.sh}.
+It won't matter where, but \texttt{firefox} will probably place it in your \texttt{Downloads} directory.\\
 
-%
-%After the \texttt{ls} command we specified the options \texttt{l}, \texttt{h} \& \texttt{R} by including them after the dash.
-%The first two of these set the output of the command to be in \textit{\underline{l}ong listing} format, and change the filesize to be output in ``\textit{\underline{h}uman-readable} format", which really means that sizes are stated in Mb or Gb, instead of bytes.
-%(You can try it without the \texttt{h} if you're curious.)
-%The \texttt{R} option allowed the command to operate \textit{\underline{r}ecursively} through the directories within \texttt{\~{}/NGSData}.
-%The list of options available for this command can be found using the command
-%\begin{lstlisting}
-%man ls
-%\end{lstlisting}
-%This command will open the help page in a program known as the \textit{less} pager, which makes your terminal into a text reader.
-%Scroll down by using the \textless \texttt{space bar}\textgreater \ until you find these two options to see what they mean.
-%You can navigate back a page by hitting the \textless \texttt{b}\textgreater \ key.
-%Exit the less pager when you are finished by entering \textless \texttt{q}\textgreater .
+Now open a terminal and head to the folder the file was saved in.
+The following assumes that the file was saved in your \texttt{Downloads} directory.
+\begin{lstlisting}
+cd ~/Downloads
+chmod +x getNGSData.sh
+./getNGSData.sh
+\end{lstlisting}
+\end{steps}
+
+This will start downloading all of the files to your VM and will create a directory \texttt{/home/trainee/NGSData} with today's data.
+
+\begin{advanced}
+If you're curious open the script we've just run using gedit and see if you can understand what the script has done.
+You might be surprised at how much you understand.
+\begin{lstlisting}
+gedit getNgsData.sh &
+\end{lstlisting}
+\end{advanced}
+
+\section{Today's Notes}
+Today's notes are also available electronically from the site \url{http://uofabioinformaticshub.github.io/Intro-Bash\_2016\_03\_24/}
