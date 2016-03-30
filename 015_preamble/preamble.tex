@@ -2,37 +2,36 @@
 % Start: General Information describing the workshop and the structure of the handouts
 %
 \newpage
+\section{Welcome}
+Thank you for your attendance \& welcome to the Introduction to NGS Data \& NGS Analytic Tools Workshop.
+This is a free offering by the University of Adelaide, Bioinformatics Hub which is a centrally funded initiative from the Department of Vice-Chancellor (Research), with the aim of assisting \& enabling researchers in their work.
+Training workshops \& seminars such as this one  are an important part of this initiative. \\
 
-\section{Providing Feedback}
-While we endeavour to deliver a workshop with quality content and documentation in a venue
-conducive to an exciting, well run hands-on workshop with a bunch of knowledgeable and likable
-trainers, we know there are things we could do better.
+The Bioinformatics Hub itself has a web-page on the University website at \url{http://www.adelaide.edu.au/bioinformatics-hub/}.
+To be kept up to date on upcoming events and workshops, please join the internal Bioinformatics mailing list on \url{http://list.adelaide.edu.au/mailman/listinfo/bioinfo}.
+Also, please consider following the Bioinformatics Hub on Twitter as many handy hints are posted on this feed \url{https://twitter.com/UofABioinfoHub}.\\
 
-Whilst we want to know what didn't quite hit the mark for you, what would be most helpful and least
-depressing, would be for you to provide ways to improve the workshop. i.e. constructive feedback.
-After all, if we knew something wasn't going to work, we wouldn't have done it or put it into the
-workshop in the first place!
+Today's workshop has been prepared with generous technical support \& advice provided by Dr Nathan Watson-Haigh (\textit{ACPFG}), Dr Dan Kortschak (\textit{Adelaide University, Adelson Research Group}), Dr Zhipeng Qu (\textit{Adelaide University, Adelson Research Group}), Dr Mark Corbett (\textit{Robinson Institute}) \& Dr John Toubia (\textit{Adelaide Centre for Cancer Genomics}). 
+The tutors today are Steve Pederson, Dr Hien To, Dr Jimmy Breen from the University of Adelaide, Bioinformatics Hub, \& Dr Terry Bertozzi (\textit{SA Museum \& Adelaide University, Adelson Research Group}). 
+We hope it will be useful in enabling you to continue and to advance your research.\\
 
-Clearly, we also want to know what we did well! This gives us that ``feel good'' factor which will
-see us through those long days and nights in the lead up to such hands-on workshops!
+\section{Course Summary}
+In today's workshop we will be introducing you to a small number of the basic tools required for NGS data handling, as well as giving you a basic familiarity with what the data actually looks like.
+Whilst we will not be able to cover all of the rich \& diverse set of tools available, we hope to cover many of the key concepts \& questions to ask of your data, as well as give you an understanding of what information is actually in the data.\\
 
-With that in mind, we'll provide three really high tech mechanism through which you
-can provide anonymous feedback during the workshop:
-\begin{enumerate}
-  \item A sheet of paper, from a flip-chart, sporting a ``happy'' face and a ``not so happy'' face.
-  Armed with a stack of colourful post-it notes, your mission is to see how many comments you can
-  stick on the ``happy'' side!
-  
-  \item Some empty ruled pages at the back of this handout. Use them for your own personal notes or
-  for writing specific comments/feedback about the workshop as it progresses.
-  
-  \item An online post-workshop evaluation survey. We'll ask you to complete this before you leave.
-  If you've used the blank pages at the back of this handout to make feedback notes, you'll be able
-  to provide more specific and helpful feedback with the least amount of brain-drain!
-\end{enumerate}
+The majority of data handling and analysis required in the field of bioinformatics uses the \textit{command line}, alternatively known as the terminal or the \textit{bash shell}, so some useful tips for the command line will be included amongst the material.
+Whilst most of the session will involve looking at individual files, in reality most of our analysis will be performed using some type of script to automate, \& easily reproduce an analysis. \\
+
+Today's session is also intended to explore several tools in actual detail, rather than rush across the whole field.
+There is large amount of information that we won't have time to discuss, but hopefully some important tools and thought processes will be covered \& enable you make better progress with your own datasets.\\
+
+\section{Post Workshop}
+The VMs which we work on today will remain active for week or so after the workshop, so feel free to continue exploring any sections that you weren't able to make it through.
+We'd also encourage you to sign up for some of the high-traffic websites like \textit{BioStars} or \textit{SEQanswers} as these are a rich resource for your own problem solving.
+
 
 \section{Document Structure}
-We have provided you with an electronic copy of the workshop's hands-on tutorial documents.
+We have provided you with a printed and an electronic copy of the workshop's hands-on tutorial documents.
 We have done this for two reasons: 1) you will have something to take away with you at the 
 end of the workshop, and 2) you can save time (mis)typing commands on the command line by using
 copy-and-paste.
@@ -40,7 +39,8 @@ copy-and-paste.
 \emph{We advise you to use Acrobat Reader to view the PDF. This is because it properly supports some
 features we have implemented to ensure that copy-and-paste of commands works as expected. This
 includes the appropriate copy-and-paste of special characters like tilde and hyphens as well as
-skipping line numbers for easy copy-and-past of whole code blocks.}
+skipping line numbers for easy copy-and-past of whole code blocks.}\\
+\\
 
 \begin{warning}
 While you could fly through the hands-on sessions doing copy-and-paste, you will learn more if you
@@ -61,16 +61,6 @@ filenames etc
 tophat [options]* <index_base> <reads_1> <reads_2>
 \end{lstlisting}
 
-The following is an example of how R commands are styled:
-
-\begin{lstlisting}[style=R]
-R --no-save
-library(plotrix) 
-data <- read.table("run_25/stats.txt", header=TRUE) 
-weighted.hist(data$short1_cov+data$short2_cov, data$lgth, breaks=0:70)
-q()
-\end{lstlisting}
-
 The following icons are used in the margin, throughout the documentation to help you navigate around
 the document more easily:
 
@@ -82,4 +72,3 @@ the document more easily:
 \hspace*{.2cm}\vcent{\includegraphics[height=1cm]{icons/warning.png}} Warning - STOP and read\\
 \hspace*{.2cm}\vcent{\includegraphics[height=1cm]{icons/bonus1.png}} Bonus exercise for fast learners\\
 \hspace*{.2cm}\vcent{\includegraphics[height=1cm]{icons/bonus2.png}} Advanced exercise for super-fast learners\\
-
