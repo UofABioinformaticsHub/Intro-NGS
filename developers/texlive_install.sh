@@ -54,7 +54,7 @@ packages=(
   oberdiek
   colortbl
   hyperref
-  tikz
+  pgf
 )
 /usr/local/texlive/bin/x86_64-linux/tlmgr \
   -repository ${CTAN_MIRROR_URL}/systems/texlive/tlnet \
