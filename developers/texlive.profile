@@ -11,7 +11,6 @@ TEXMFSYSVAR /usr/local/texlive/texmf-var
 TEXMFVAR ~/.texlive/texmf-var
 binary_x86_64-linux 1
 collection-basic 1
-collection-pictures 1
 in_place 0
 option_adjustrepo 1
 option_autobackup 1
