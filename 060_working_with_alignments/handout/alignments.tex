@@ -84,7 +84,8 @@ Whereas to look through the first few mapped reads, we can use:
 \begin{lstlisting}
 samtools view chr2L.bam | head
 \end{lstlisting}
-As this data can easily spill across lines, it might be helpful to maximise your terminal to see the complete line structure.
+Note that each line of data within the file will probably wrap across multiple lines.
+It might be helpful to maximise your terminal to try and see the complete line structure.
 \end{steps}
 
 \begin{questions}
@@ -97,7 +98,7 @@ These option is only used when specifying the output as a BAM file (-b) and the 
 \subsection{The SAM/BAM data structure}
 \begin{information}
 If we understand what information is contained within a file, we can know what decisions to make as we progress with our analysis, so let's have a look at what the data structure is for a SAM/BAM file.
-A SAM file is \textit{tab-delimited}, which means that each field is separated by a tab, giving a data structure effectively consisting of columns (or fields).
+A SAM file is a \textit{tab-delimited} text file, which means that each field is separated by a tab, giving a data structure effectively consisting of columns (or fields).
 In order, these are: \\
 \begin{tabular}{r l l}
 1 & QNAME & Query template/pair NAME \\
@@ -122,32 +123,62 @@ Most of these fields are self-explanatory, but some require exploration in more 
 
 \subsection{SAM Flags}
 \begin{information}
-These are quite useful pieces of information, but can be difficult at first look.
-Head to \url{http://broadinstitute.github.io/picard/explain-flags.html} to see a helpful description.
-The simplest way to understand these is that it is a bitwise system so that each description heading down the page increases in a binary fashion.
-The first has value 1, the second has value 2, the third has value 4 \& so on until you reach the final value of 2048.
-The integer value contained in this file is the unique sum of whichever attributes the mapping has.
-For example, if the read is paired \& mapped in a proper pair, but no other attributes are set, the flag field would contain the value 3.
+Most aligners will just align every read within the given criteria, and store details about each alignment in the \texttt{FLAG} field.
+These flags can be used to filter your alignments prior to downstream analysis.
+For example, you may only want to include the uniquely mapped reads in your analysis.
+Although flags are very useful, they contain a large amount of information and can be difficult at first look.
+Head to \url{http://broadinstitute.github.io/picard/explain-flags.html} to see a helpful description.\\
+
+The simplest way to understand these is that it is a bitwise system where each bit at each position has a numeric value, and an associated attribute.
+Each bit itself can only have the values 0 \& 1, as these are they way computers actually store numbers.
+By using this system, a single number as this flag can hold a lot of information about each alignment.
+The flags on the above web-page are also given in the following table.\\
+
+\begin{tabular}{lll}
+	\toprule
+	Bit Position & Numeric Value & Interpretation \\
+	\midrule
+ 	1 & 1 & read paired\\
+	2 & 2 & read mapped in proper pair\\
+  	3 & 4 & read unmapped\\
+	4 & 8 & mate unmapped\\
+	5 & 16 & read reverse strand\\
+	6 & 32 & mate reverse strand\\
+	7 & 64 & first in pair\\
+	8 & 128 & second in pair\\
+	9 & 256 & not primary alignment\\
+	10 & 512 & read fails platform/vendor quality checks\\
+	11 & 1024 & read is PCR or optical duplicate\\
+	12 & 2048 & supplementary alignment\\
+  	\bottomrule
+\end{tabular}
+
+\end{information}
+
+\begin{information}
+Using the above table, if the read is paired \& mapped in a proper pair, but no other attributes are recorded for the alignment, the first two bits would both be given the value 1 (i.e. they are ``on''), and the flag field would contain the value $1 + 2 = 3$.
+If this was also recorded as the first read in the pair, the flag would be $1 + 2 + 64 = 67$.
 \end{information}
 
 \begin{questions}
-What value could a flag take if it had the following set of properties?
+What value would a flag take if it had the following set of properties?
 	\begin{enumerate}
 	\item the read was paired; 
 	\item the read was mapped in a proper pair
-	\item the read was was the first in the pair; \& 
+	\item the read was was the first in the pair; 
+	\item the read was not the primary alignment \& 
 	\item the alignment was a supplementary alignment
 	\end{enumerate}
 \begin{answer}
-2115 \\
+$1 + 2 + 64 + 256 + 2048 = 2371 $ \\
 \end{answer}
 Some common values in the bam file are 99, 147 \& 145.
-Look up the meanings of these values. \\
+Look up the meanings of these values using the website. \\
 \end{questions}
 
 \begin{information}
-Things can easily begin to confuse people once you start searching for specific flags, but if you remember that each attribute is like an individual flag that is either on or off (i.e. it is binary).
-If you searched for flags with the value 1, you wouldn't obtain the alignments with the exact value 1, rather you would obtain the alignments for which the first flag is set \& these can take a range of values.
+Once you start searching for specific flags, it is important to remember that each attribute is an individual bit that is either on or off (i.e. it is binary).
+If you searched for flags with the value 1, you won't obtain the alignments where the flag has exact value 1, rather you would obtain the alignments for which the first flag is set \& these can take a wide range of values.
 \end{information}
 
 \begin{steps}
@@ -171,7 +202,7 @@ For example, we can create a new BAM file with only the reads which were aligned
 samtools view -f 2 -bo chr2L.paired.bam chr2L.bam
 ls -lh
 \end{lstlisting}
-You can pull out highly specific combinations of alignments should you so choose
+You can pull out highly specific combinations of alignments should you so choose.
 \end{information}
 
 
@@ -255,11 +286,11 @@ Unfortunately with these alignments, the further out we zoom we will begin to lo
 Have a look at the gene \textit{drongo} as well, and have a look around by clicking the navigation at the very top of the graphical display.
 \end{steps}
 
-\section{Bonus For Those Well Ahead of the Pack}
-\begin{advanced}
-For those who still feel like they want more, try running an entire pipeline on the iCLIP data, including adapter removal and read trimming.
-Record your commands in the \texttt{gedit} text editor so you have a record of what you did.
-Instead of aligning to the entire human genome, try just aligning to chromosome 17.
-\end{advanced}
+%\section{Bonus For Those Well Ahead of the Pack}
+%\begin{advanced}
+%For those who still feel like they want more, try running an entire pipeline on the iCLIP data, including adapter removal and read trimming.
+%Record your commands in the \texttt{gedit} text editor so you have a record of what you did.
+%Instead of aligning to the entire human genome, try just aligning to chromosome 17.
+%\end{advanced}
 
 
