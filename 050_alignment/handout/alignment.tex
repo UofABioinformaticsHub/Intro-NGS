@@ -54,13 +54,12 @@ The RNASeq reads we have today come from \textit{Drosophila melanogaster}, so to
 Here you can find the transcriptome (\textit{cdna}), genome (\textit{dna}), proteome (\textit{pep}) \& non-coding RNA (\textit{ncrna}) in separate folders.
 Let's align to the genome, so first create the directory to save it to then download using the linux command \texttt{wget}.
 Instead of typing that enormous last command, navigate to the /dna folder on the ftp server then right-click on the file Drosophila\_melanogaster.BDGP5.25.62.dna\_rm.toplevel.fa.gz \& select \texttt{Copy Link Location}.
-After typing \texttt{wget} in the following commands, right-click in the terminal \& paste the contents of the clipboard.
-(An alternative method for pasting into the terminal is to use \texttt{Ctrl + Shift + V})
+After typing \texttt{wget}, right-click in the terminal \& paste the contents of the clipboard.
 \begin{lstlisting}
 cd ~
 mkdir reference
 cd reference
-wget 'Paste Copied Link Location Here'
+wget ftp://ftp.ensembl.org/pub/release-62/fasta/drosophila_melanogaster/dna/Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa.gz
 gunzip Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa.gz
 \end{lstlisting}
 \end{steps}
