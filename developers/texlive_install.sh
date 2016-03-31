@@ -56,7 +56,6 @@ packages=(
   hyperref
   pgf
   ms
-  booktabs
 )
 /usr/local/texlive/bin/x86_64-linux/tlmgr \
   -repository ${CTAN_MIRROR_URL}/systems/texlive/tlnet \
