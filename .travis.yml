@@ -7,6 +7,8 @@ git:
   submodules: false
 before_install:
   - git submodule update --init --recursive
+#before_script:
+  - cd ./developers/ && sudo -E ./texlive_install.sh && cd ../
 script:
   - sudo -E make tex_env
   - make all
