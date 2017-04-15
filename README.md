@@ -1,14 +1,13 @@
-# Introduction To NGS Data & Analytic Tools
+# Data for NGS workshop
 
-A full day workshop run on 31-March 2016
+Jimmy Breen (170414)
 
-Presented by the [University of Adelaide, Bioinformatics Hub](https://www.adelaide.edu.au/bioinformatics-hub/)
+1. SRR2039542
 
-The latest versions of the material are available for download [here](http://uofabioinformaticshub.github.io/Intro-NGS_2016-03-31/)
+- Small RNA
+- Single End Sequencing
 
-License
-=======
-The contents of this repository are released under the Creative Commons
-Attribution 3.0 Unported License. For a summary of what this means,
-please see:
-http://creativecommons.org/licenses/by/3.0/deed.en_GB
+2. SRR2003569
+
+- Whole Genome Sequencing
+- Paired-end Sequencing  
