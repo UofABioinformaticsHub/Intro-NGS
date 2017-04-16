@@ -45,3 +45,26 @@ The main interface we will be using today is the \texttt{terminal}which can be a
 \textbf{Firefox} can also be accessed from the terminal using the command \texttt{firefox \&},  by clicking the \texttt{Web Browser} icon, or from the drop-down menu in the top left under the group \textit{Internet}.
 
 \end{note}
+
+\section{Today's Data}
+\begin{note}
+Before we begin today's session, we need to run some setup commands and get our NGS data that we will use in the tutorial. Firstly, we will need some data and a script to setup our environment
+\end{note}
+
+\begin{steps}
+Now open the terminal and run the following commands:
+\begin{lstlisting}
+cd ~/
+wget -c "[SETUP SCRIPT LINK HERE]"
+wget -c "[DATA LINK HERE]"
+\end{lstlisting}
+
+These will download the data and setup script for today's tutorial. Once these have downloaded, we need to run the setup script which will set everything up nicely for us:
+
+\begin{lstlisting}
+cd ~/
+chmod +x workshop_setup.sh
+./workshop_setup.sh
+\end{lstlisting}
+
+\end{steps}

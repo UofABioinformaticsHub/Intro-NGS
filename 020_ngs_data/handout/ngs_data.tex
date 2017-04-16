@@ -3,6 +3,7 @@
     Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
 }
 \setModuleContributions{%
+  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
   Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
   Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
 }
@@ -81,12 +82,12 @@ This can save considerable hard drive space, which is an important consideration
 \end{note}
 
 \begin{steps}
-We should still have a terminal open from the previous section \&, if necessary, use the \texttt{cd} command to make sure you are in the \texttt{\~{}/NGSData/RNASeq/rawData} directory.
+We should still have a terminal open from the previous section \&, if necessary, use the \texttt{cd} command to make sure you are in the home ( \texttt{\~{}/}) directory.
 The command \texttt{zcat} unzips a file \& prints the output to the terminal, or standard output (\textit{stdout}).
 If we did this to these files, we would see a stream of data whizzing past in the terminal, but instead we can just pipe the output of \texttt{zcat} to the command head to view the first 10 lines of a file. \\
 \begin{lstlisting}
-cd ~/NGSData/RNASeq/rawData
-zcat reads1.fq.gz | head -n8
+cd ~/rawData
+zcat SRR2003569_1.fastq.gz | head -n8
 \end{lstlisting}
 \end{steps}
 
@@ -122,22 +123,22 @@ Let's have a brief look at each of these lines and what they mean.\\
 
 \subsubsection*{The read identifier}
 This line begins with an \texttt{@} symbol and although there is some variability, it traditionally has several components.
-Today's data have been sourced from an EBI data repository with the identifier \texttt{SRR031714}.
-For the first sequence in this file, we have the full identifier \texttt{@SRR031714.1 HWI-EAS299\_130MNEAAXX:2:1:785:591/1} which has the following components: \\
+Today's data have been sourced from an EBI data repository with the identifier \texttt{SRR2003569}.
+For the first sequence in this file, we have the full identifier \texttt{@SRR2003569.1 JLK5VL1:245:D1DF6ACXX:6:1101:4181:2239/1} which has the following components: \\
 
 \begin{tabular}{|p{5cm} | p{9cm} |}
   \hline
-  \texttt{SRR031714.1} & The aforementioned EBI identifier \& the sequence ID within the file. As this is the first read, we have the number 1. NB: This identifier is \textbf{not} present when data is obtained directly from the machine or service provider.\\
+  \texttt{SRR2003569.1} & The aforementioned EBI identifier \& the sequence ID within the file. As this is the first read, we have the number 1. NB: This identifier is \textbf{not} present when data is obtained directly from the machine or service provider.\\
   \hline
-  \texttt{WHI-EAS299\_130MNEAAXX} & The unique machine ID \\
+  \texttt{JLK5VL1:245:D1DF6ACXX} & The unique machine ID \\
   \hline
-  \texttt{2} & The flowcell lane \\
+  \texttt{6} & The flowcell lane \\
   \hline
-  \texttt{1} & The tile within the flowcell lane \\
+  \texttt{1101} & The tile within the flowcell lane \\
   \hline
-  \texttt{785} & The $x$-coordinate of the cluster within the tile \\
+  \texttt{4181} & The $x$-coordinate of the cluster within the tile \\
   \hline
-  \texttt{591} & The $y$-coordinate of the cluster within the tile \\
+  \texttt{2239} & The $y$-coordinate of the cluster within the tile \\
   \hline
   \texttt{/1} & Indicates that this is the first read in a set of paired end reads \\
   \hline
@@ -149,7 +150,7 @@ By and large you won't need to utilise most of this information, but it can be h
 \begin{steps}
 While we are inspecting our data, have a look at the beginning of the second file.
 \begin{lstlisting}
-zcat reads2.fq.gz | head -n8
+zcat SRR2003569_2.fastq.gz | head -n8
 \end{lstlisting}
 Here you will notice that the information in the identifier is identical to the first file we inspected, with the exception that there is a \texttt{/2} at the end.
 This indicates that these reads are the second set in what are known as \textit{paired-end} reads, as were introduced in the above video.
@@ -173,24 +174,6 @@ Inspection of this line will enable you to find out which version of the casava 
 The tool \texttt{fastq\_illumina\_filter} is designed to remove these reads for you \& the tool, along with usage instructions can be found at \url{http://cancan.cshl.edu/labmembers/gordon/fastq\_illumina\_filter/}.\\
 \end{information}
 
-\begin{steps}
-An alternate set of reads which we'll also explore today is in included in the directory \texttt{\~{}/NGSData/iCLIP/rawData}.
-These are immunopreciptated mRNAs and were supplied by some collaborators who'd either forgotten the removal of low-quality reads or had deliberately neglected step to increase read numbers.
-Note that these files are not compressed and are essentially plain text files, so we can directly inspect them using the command \texttt{head} instead of decompressing first.\\
-\end{steps}
-
-\begin{lstlisting}
-cd ~/NGSData/iCLIP/rawData
-head -n12 iCLIP_Sample1.fastq
-\end{lstlisting}
-
-Note that the header lines follow the format described on the previous page with this additional field at the end of the line.
-\begin{questions}
-Of the first three reads which have been printed to the terminal above, which one(s) will have failed the chastity filter, and which ones will have passed the filter?\\
-\begin{answer}
-The first read would have failed (i.e. it is low quality), whilst the other two will have passed.
-\end{answer}
-\end{questions}
 
 \subsubsection{Quality Scores}
 \begin{information}
@@ -238,8 +221,8 @@ L - Illumina 1.8+ Phred+33,  raw reads typically (0, 41) \\
 \end{minipage}
 
 \begin{questions}
-Have a look at the quality scores in the RNA-Seq data.
-Which coding system do you think has been used for the RNA-Seq reads that we have? \\
+Have a look at the quality scores in our paired-end reads (SRR2003569_1.fastq.gz and SRR2003569_2.fastq.gz)
+Which coding system do you think has been used for the reads that we have? \\
 \begin{answer}
 PHRED+33.
 The presence of values between `!' \& `?' gives this away.\\
