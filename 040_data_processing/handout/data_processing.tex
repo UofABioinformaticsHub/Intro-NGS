@@ -3,6 +3,7 @@
     Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
 }
 \setModuleContributions{%
+  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
   Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
   Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
 }
@@ -23,7 +24,7 @@ Data cleaning \& pre-processing can involve many steps, and today we will use th
 Every analysis is slightly different so some steps may or may not be required for your own data.
 Some steps do have a little overlap, and some pipelines (e.g. \textit{Stacks}) may perform some of these steps for you.\\
 
-Unfortunately, for the purposes of keeping today's datasets manageable, we will be working on data that has already been demultiplexed.
+Using today's datasets, we will take one sequencing through demultiplexing and adapter removal, and then use our C. elegans WGS to run genome mapping and alignment filtering.
 We will perform most steps on files at this stage, rather than on a complete library, but the principle is essentially the same.\\
 
 % Define block styles
@@ -34,7 +35,7 @@ We will perform most steps on files at this stage, rather than on a complete lib
 \begin{figure}
 	\centering
 	\begin{tikzpicture}[node distance = 2.5cm, auto]
-	
+
 	    % Place nodes
 	    \node [block] (lib) {Complete Library (i.e. 1 Flowcell Lane)};
 	    \node [block, below of=lib] (flag) {Removal of Low Quality Reads};
@@ -43,13 +44,13 @@ We will perform most steps on files at this stage, rather than on a complete lib
 		\node [block, below of=trim] (demult) {Demultiplexing};
 		\node [block, below of=demult] (align) {Alignment To Reference};
 		\node [block, below of=align] (bam) {Filtering Post-Alignment};
-		
+
 		% Place Clouds
 		\node [cloud, right of=flag] (filt) {\footnotesize{fastq\_illumina\_filter}};
 		\node [cloud, right of=adapt] (cutadapt) {\footnotesize{cutadapt}};
 		\node [cloud, right of=trim] (fastx) {
 			\begin{tabular}{c}
-			\footnotesize{fastq\_quality\_trimmer} \\ 
+			\footnotesize{fastq\_quality\_trimmer} \\
 			\footnotesize{fastx\_trimmer}
 			\end{tabular}};
 		\node [cloud, right of=demult] (fastqm) { \footnotesize{fastq\_multx}};
@@ -73,167 +74,71 @@ We will perform most steps on files at this stage, rather than on a complete lib
 	\end{tikzpicture}
 \end{figure}
 
+\section{Demultiplexing}
 
-\section{Removal of Low Quality Reads}
+In the previous section "Understanding NGS Data \& FASTQ Format" we discussed the difference between an \textit{index} and a \textit{barcode}. If you use an indexed adapter to distinguish samples on an Illumina sequencing run, the demultiplexing is \textit{usually} done on the sequencing machine. However, sometimes it makes sense to use a barcode (or sometimes called "inline barcode"), to further multiplex samples onto one sequencing run.\\
 
-\begin{information}
-In earlier versions of the \textit{CASAVA} pipeline, low quality reads were automatically filtered out.
-However, on some rare occasions researchers wanted those reads to try \& extract additional information from their samples.
-Thus data generated using later versions of the software retains these reads and they must be removed by researchers instead of the data providers. \\
-\end{information}
-
-As discussed earlier, reads that fail will have the flag \texttt{1:Y:0} set as part of the identifier, and by switching the \texttt{--casava} option on during \texttt{fastqc}, we were able to see what the samples would look like after removal of these reads.
-Note, that they were not removed during this stage, but rather they were ignored whilst the QC steps were being run. \\
+\begin{note}
+While barcode can be incredibly useful, it is important to note that Illumina cycle calibration and cluster calling is done in the first 4 cycles (first four base-pairs of read 1). It also is used to establish other metrics (e.g., signal thresholds) for base-calling.
+Therefore it is essential that the first four base pairs are "diverse" (i.e. no particular nucleotide is over-represented in the first four base-pairs). Designing the right barcodes to add to the start of your reads extremely important! \\
+Additionally, the Illumina NextSeq machine's have a slighly different sequence setup to the other sequencing machines (MiSeq, HiSeq and GAII's), using two-channel sequencing, which requires only two images to encode the data for four DNA bases, one red channel and one green channel. Guanine is an absence of colour and therefore at least one base other than G most be present in the first two cycles (\url{http://blog.kokocinski.net/index.php/barcode-balancing-for-illumina-sequencing?blog=2}). \\
+For more information on Illumina cluster density and other technical aspects of cycles and imaging, be sure to read the following Illumina support material \url{https://support.illumina.com/content/dam/illumina-marketing/documents/products/other/miseq-overclustering-primer-770-2014-038.pdf}.
+\end{note}
 
 \begin{steps}
-To remove these reads, we can use the tool \texttt{fastq\_illumina\_filter}, which simply creates a new set of \texttt{fastq} files with only the reads we wish to keep, i.e. those with the \texttt{1:N:0} flag set.
+To demonstrate demultiplexing we will use the a sequencing run with two samples that have a 7bp barcode. Our barcode sequences should be "GCGTAGT" (for sample1) and "CCTCGTA" (for sample2). Lets first see what possible barcodes are available in the first 7bp of our dataset and see if it matches what we expect:
 \begin{lstlisting}
-cd ~/NGSData/iCLIP
-mkdir filteredData
-cd rawData
-fastq_illumina_filter -N -o ../filteredData/iCLIP_Sample1.fastq iCLIP_Sample1.fastq
-fastq_illumina_filter -N -o ../filteredData/iCLIP_Sample2.fastq iCLIP_Sample2.fastq
+cd ~/rawData/Multiplexed/Run1_R1.fastq.gz
+zcat Run1_R1.fastq.gz |sed -n '2~4p' | cut -c 1-7 | sort | uniq -c | sort -nr | head -n10
 \end{lstlisting}
 \end{steps}
 
 \begin{questions}
-Notice that in the above code, we used the setting\\
-\texttt{-o ../filteredData/iCLIP\_Sample1.fastq}.\\
-What did this mean?\\
+What top 5 barcodes are found in our data? Do the top two reflect our the barcodes we should have?\\
 \begin{answer}
-We wrote the output to the directory filteredData, which was a subdirectory of the directory one step up form the current directory.
+1577658 CCTCGTA and 1445792 GCGTAGT. These are the barcodes we need
+\end{answer}
+The command above is quite long and contains multiple unix commands that are separated by a pipe. What does each command do?
+\begin{answer}
+zcat Run1_R1.fastq.gz: Prints the compressed fastq file to screen \\
+sed -n '2~4p': Prints the second line (sequence of each fastq file) \\
+cut -c 1-7: Get the first 7 characters \\
+sort: sort the sequences \\
+uniq -c: Find the unique 7 characters are count them \\
+sort -nr: sort the sequences and reverse the order \\
+head -n10: Print the top 10 \\
 \end{answer}
 \end{questions}
 
-\begin{information}
-Now that we have the filtered fastq files, we should run \texttt{fastqc} on them.
-A sensible idea for organising the QC files is to mirror the directory structure of the fastq files.
-You'll also notice that these fastqc report are near identical to those produced using the \texttt{-{}-casava} flag earlier.
-However, this time we have run the command on files where the low quality reads have been removed so we don't need the \texttt{-{}-casava} option set. \\
-\end{information}
-
 \begin{steps}
+Our barcodes are actually in a file called barcodes
 \begin{lstlisting}
-cd ../filteredData
-mkdir -p ~/QC/iCLIP/filteredData
-fastqc -o ~/QC/iCLIP/filteredData -t 2 iCLIP_Sample1.fastq iCLIP_Sample2.fastq
+cd ~/rawData/Multiplexed/
+gunzip Run1_R1.fastq.gz
+gunzip Run1_R2.fastq.gz
+sabre pe -m 1 -f Run1_R1.fastq -r Run1_R2.fastq -b barcodes_R1.txt \
+-u unknown_barcode1.fastq -w unknown_barcode2.fastq
 \end{lstlisting}
 \end{steps}
 
-\section{Adapter Removal}
+\begin{questions}
+How many read pairs were extracted in each sample? \\
+\begin{answer}
+Sample1: 1869572 reads (934786 pairs), Sample2: 2045180 reads (1022590 pairs)
+\end{answer}
+Run the command again without the one mismatch. How many read are now in each? \\
+\begin{answer}
+Sample1: 1831248 reads (915624 pairs), Sample2: 2027884 reads (1013942 pairs)
+\end{answer}
+\end{questions}
 
-Looking through the fastqc files generated after removal of the chastity-filtered reads, reveals that we have some adapter sequences present in our read.
-These are caused by inserts that are shorter than our read lengths, and if your data has been size selected, this may not be a problem you have to worry about.
-However, it is very common for RNA seq experiments.\\
+\section{Removal of Low Quality Reads and Adapters}
+
+Adapter removal is an important step in many sequencing projects, mainly projects associated with small DNA/RNA inserts. For example, a common RNAseq experiment is to sequence small non-coding RNAs that are generated by an indvidual to regulate other coding sequences. These small RNAs (namely miRNAs, snoRNAs and/or siRNAs) are generally between 19-35bp, which is significantly smaller than the shortest, standard read length of most Illumina MiSeq/NextSeq/HiSeq machines (usually have read length settings such as 50, 75, 100, 125, 250 or 300bp). Therefore it is important to trim adapters accurately to ensure that the genome mapping and other downstream analyses are accurate.
+In previous workshops we would run multiple steps to remove both low-quality reads, but today's trimming algorithms have become better at removing low-quality data and the same time as removing adapters. \\
 
 The tool we'll use today is \texttt{cutadapt} \& it's one of the few bioinformatics tools to have a helpful webpage, so head to the site \url{http://cutadapt.readthedocs.org/}.
 
-\begin{questions}
-On the \texttt{cutadapt} webpage, navigate to the User Guide, then the section marked Trimming Reads.
-Which type of adapter contamination would give the plots seen the fastqc output files we have seen for the iCLIP data?\\
-\begin{answer}
-3' contamination, as expected by short inserts.
-\end{answer}
-\end{questions}
-
-\subsection{Single End Data}
-
-The first question to ask is, how do we find what the adapter sequence is?
-The fastqc reports suggested the Illumina Universal Adapter in the plots, whilst the reports for the second sample suggested it was a paired end primer.
-Fortunately the tool \texttt{fastqc} comes with some sequences which make a good starting point.
-This is contained in a sub-directory which the software was downloaded \& unzipped into, which in our installation is \texttt{/opt/FastQC/Configuration}.
-
-\begin{steps}
-Change into the directory \& see what files are there:
-\begin{lstlisting}
-cd /opt/FastQC/Configuration
-ls -lh
-\end{lstlisting}
-\end{steps}
-
-\begin{steps}
-The two files of interest are called \texttt{adapter\_list.txt} and \texttt{contaminant\_list.txt}.
-To find the sequences associated with our potential adapters, we can look in these files.
-\begin{lstlisting}
-egrep 'Universal' adapter_list.txt
-egrep 'Paired End PCR' contaminant_list.txt
-\end{lstlisting}
-\end{steps}
-
-\begin{steps}
-Now we have some potential adapter sequences we can look in our reads \& see if they're prevalent.
-First we'll look for the Universal Adapter \& then the first few nuecleotides from the Paired End PCR Primer.
-In the code below the option \texttt{-m10} is telling \texttt{egrep} to only give us the first 10 matches.
-\begin{lstlisting}
-cd ~/NGSData/iCLIP/filteredData
-egrep -m10 'AGATCGGAAGA' iCLIP_Sample1.fastq
-egrep -m10 'CAAGCAGAAGA' iCLIP_Sample1.fastq
-\end{lstlisting}
-\end{steps}
-
-\begin{questions}
-Using \texttt{egrep -c}, find how many reads match these sequences in each of the samples.
-(NB: You won't need to set the option -m10 for this step)\\
-\begin{answer}
-15499 \& 14246 matches to the Universal Adapter.
-0 \& 3 matches to the Paired End PCR Primer.\\
-\end{answer}
-
-Inspect the matches carefully.
-Have we found our contaminant? \\
-\begin{answer}
-No. 
-Most of the matches have the same long trailing sequence after the match.
-There are also quite a few upstream sequences of interest, although these don't seem to be as obvious.
-\end{answer}
-\end{questions}
-
-Fortunately for this dataset the protocols were available, and inspecting the P3 primer reveals this as the potential contaminant.
-Now we have identified the culprit we can set about removing this sequence from our reads.
-Before we decide to remove this contamination, we also need to consider whether we throw away any reads which are too short, or which have low quality scores.
-
-\begin{questions}
-In the following code, what is the minimum length that we have selected and what is the minimum quality score?\\
-\begin{answer}
-Reads less than 20nt will be discarded after adapter removal, and those with a quality score less than 20 will also be thrown away.
-By default, the command \texttt{cutadapt} will write a whole lot of useful information to \textit{stdout}.
-In the following code note that we are directing this to a file, which is very good practice and can be quite useful later on.
-\end{answer}
-\end{questions}
-
-\begin{warning}
-Don't forget that the appearance of the \textbackslash ~ symbol at the end of the line is just to let you know that the printer has manually broken a single line of code.
-\end{warning}
-
-\begin{steps}
-\begin{minipage}{\textwidth}
-\begin{lstlisting}
-cd ~/NGSData/iCLIP
-mkdir trimmedData
-cutadapt -q 20 -m 20 -a 'AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCG' -o trimmedData/iCLIP_Sample1.fastq filteredData/iCLIP_Sample1.fastq > cutadapt.Sample1.log
-\end{lstlisting}
-\end{minipage}
-\end{steps}
-
-\begin{steps}
-Repeat this process for the second sample, and run fastqc on them both.
-To do this just use the arrow up in the terminal to get the previous command, then change all of the occurrences of \texttt{Sample1} to \texttt{Sample2}.
-\end{steps}
-
-\begin{questions}
-Did this solve our adapter contamination problem?\\
-\begin{answer}
-For the most part.
-There are still some sequences that appear to be over-represented, but these will probably have other origins.
-Any residual adapter sequence in the last base or two of a read will remain though
-\end{answer}
-\end{questions}
-
-\begin{steps}
-Inspect the log files that we have created using the commands \texttt{cat, head} or \texttt{less}.
-These can be very helpful and alert us to if we haven't removed all the adapter sequence.
-For example, if you see a message telling you that 80\% of adapters had a `T' beforehand, that may be a sign that we haven't entered the complete adapter sequence.
-\end{steps}
 
 \subsection{Paired-End Data}
 % Expand this seciton next time
@@ -254,244 +159,33 @@ The more recent versions of \texttt{cutadapt} allow for trimming sets of paired 
 Check the website for the correct code at \url{http://cutadapt.readthedocs.org/en/stable/guide.html#trimming-paired-end-reads}.
 \end{advanced}
 
-
-\section{Read Trimming \&/or Filtering}
-Now that we have removed the worst of the reads, we need to sort through the remaining reads and decide on what is the most appropriate for our particular experiment.
-Read trimming can be done in a variety of different ways, so choose a method which best suits your data. 
-Some analytic protocols require fixed length reads, whilst others can accept varying lengths and this can affect your approach as well.
-Here we will give examples of fixed-length trimming and quality-based trimming.
-
-
-\subsection{Fixed Length Trimming}
-One method of improving the quality of the base calls in your dataset is to remove the low quality bases at the end using fixed-length trimming, via a tool such as \texttt{fastx\_trimmer} from the FASTX-Toolkit.
-It is worth noting that reads shorter than 20bp can be increasingly difficult to map uniquely to the reference genome, so keeping any trimmed reads longer than this is usually a more ideal strategy.
-We will write the trimmed data as a new file so we should create a new directory to write this modified data to first.
-We should also check the help page for the \texttt{fastx\_trimmer} command
 \begin{steps}
-\begin{lstlisting}
-fastx_trimmer -h
-\end{lstlisting}
-\end{steps}
-
-\begin{steps}
-Now we can trim the data to just the first 32 bases.
-Also note from the help page above, that if no input file is specified the command looks to the standard input (\textit{stdin}) for the reads.
-As this tool cannot process gzipped (i.e. compressed) files, we can thus decompress it using \texttt{zcat} as beforehand, and feed this to the command via the pipe (|).
+Now we can trim the data our demultiplexed data using the Illumina Nextera paired-end adapters. This are commonly used in Illumina projects. The index in the 3' adapter of the first read, which is used to demultiplex on the sequencing machine, we need block the sequence otherwise it can cause problems in the adapter matching. To do this, we use a sequence of "N" nucleotides.
 \end{steps}
 
 \begin{lstlisting}
-cd ~/NGSData/RNASeq/rawData
-mkdir -p ../trimmedData
-zcat reads1.fq.gz | fastx_trimmer -Q 33 -f 1 -l 32 -z -o ../trimmedData/reads1_len_trimmed.fq.gz
-zcat reads2.fq.gz | fastx_trimmer -Q 33 -f 1 -l 32 -z -o ../trimmedData/reads2_len_trimmed.fq.gz
+cd ~/rawData/Multiplexed
+mkdir -p ~/rawData/Multiplexed/trimmedData
+cutadapt -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCACNNNNNNATCTCGTATGCCGTCTTCTGCTTG \
+-A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT \
+-o ~/rawData/Multiplexed/trimmedData/Sample1_r1_trim1.fastq \
+-p ~/rawData/Multiplexed/trimmedData/Sample1_r2_trim2.fastq \
+Sample1_r1.fastq Sample1_r2.fastq
 \end{lstlisting}
 
-\begin{note}
-We used the following options in the command above:
-\begin{description}[style=multiline,labelindent=0cm,align=right,leftmargin=0.8\descriptionlabelspace,rightmargin=1.5cm,font=\ttfamily]
-\item[-Q 33] Indicates the quality scores are Phred+33 encoded
-\item[-f 1] First base to be retained in the output
-\item[-l 32] Last base to be retained in the output
-\item[-z] Compress (i.e gzip) the output
-\item[-o] Output file name
-\end{description}
-\end{note}
-
-\begin{steps}
-Now we can run \texttt{fastqc} on the trimmed files and visualise the quality scores.
-\begin{lstlisting}
-cd ~/NGSData/RNASeq/trimmedData/
-mkdir -p ~/QC/RNASeq/trimmedData
-fastqc -o ~/QC/RNASeq/trimmedData -t 2 reads1_len_trimmed.fq.gz reads2_len_trimmed.fq.gz
-\end{lstlisting}
-Open the new QC reports in \texttt{firefox} \& compare with the original reports.
-\end{steps}
-
-
-\subsection{Quality Based Trimming}
-Instead of just removing all of the sequence data from the end of our reads, the base call quality scores can also be used to dynamically determine the trim points for each read. 
-A quality score threshold and minimum read length following trimming can be used to remove low quality data. \\
-\begin{steps}
-First we'll have a look at the help page, then we  run the following command to quality trim your data.
-This may take a minute or two so don't panic if it looks like nothing is happening.
-\begin{lstlisting}
-fastq_quality_trimmer -h
-cd ~/NGSData/RNASeq/rawData
-zcat reads1.fq.gz | fastq_quality_trimmer -Q 33 -t 20 -l 32 -z -o ../trimmedData/reads1_qual_trimmed.fq.gz
-\end{lstlisting}
-\end{steps}
-
-\begin{note}
-\begin{description}[style=multiline,labelindent=0cm,align=right,leftmargin=0.8\descriptionlabelspace,rightmargin=1.5cm,font=\ttfamily]
-\item[-Q 33] Indicates the input quality scores are Phred+33 encoded
-\item[-t 20] quality score cut-off of 20
-\item[-l 32] minimum length of reads to output is 32
-\item[-z] Compress (gzip) the output
-\item[-o] Output file name
-\end{description}
-\end{note}
-
-\begin{steps}
-Run the same process on the 2nd pair in the set of reads, then inspect the QC report from \texttt{fastqc} using \texttt{firefox}.
-\begin{lstlisting}
-cd ~/NGSData/RNASeq/trimmedData/
-fastqc -o ~/QC/RNASeq/trimmedData -t 2 reads1_qual_trimmed.fq.gz reads2_qual_trimmed.fq.gz
-\end{lstlisting}
-\end{steps}
+Now lets do this with Sample2.
 
 \begin{questions}
-Was there a difference in the range of quality scores based on the two types of trimming? \\
+When running the adapter trimming we needed to add blocking "N" nucleotides to the adapter sequence. Why do we do this? \\
 \begin{answer}
-The Q scores are slightly higher for the fixed length trimmed sequences. \\
+Because the indexes are different from project to project, we need to allow any nucleotide to match.
 \end{answer}
-
-Did you observe any unexpected behaviour? \\
+How many final adapter trimmed reads were found in Sample1 and Sample2? \\
 \begin{answer}
-Yes, quality trimmed sequences didn't behave how I expected \& there were scores below 20 in the trimmed data.
-Trimming is actually performed using an algorithm that averages scores across a region, so it's probably good to show people that things don't always work as expected \& a fair bit of head scratching will be involved. \\
+Sample1 produced 915,624 paired reads and Sample2 produced 1,013,942 paired reads.
 \end{answer}
-
-Did the number of reads change depending on the trimming method? \\
+The cutadapt program produces a large amount of information about the trimming process, especially regarding the sequence length distribution of the output reads. To the nearest 10bp (i.e. 10-20 or 110-120), what would be the modal peak of each Sample (the 10bp containing the most number of sequences)?
 \begin{answer}
-Yes, about 60,000 reads were lost during the quality trimming process. \\
-\end{answer}
-
-Paired end samples need to keep the the paired structure of the reads intact between files.
-Would this structure be potentially disrupted by either of these methods? \\
-\begin{answer}
-Yes, quality based trimming may result in the read being discarded in only one of the pairs. 
-This would make any paired end analysis much more difficult and further steps would need to be taken to return the files to the correctly paired format.\\
-\end{answer}
-\end{questions}
-
-\section{Read Filtering}
-Another alternative to trimming reads would be to filter out reads which are low quality.
-In this RNA-Seq dataset, there were no reads which fail the Illumina Chastity Filter, but sometimes we can still be left with some low quality reads in our data. 
-The tool \texttt{fastq\_quality\_filter} is available for this approach, which we will utilise for the RNA-Seq dataset.
-\begin{lstlisting}
-fastq_quality_filter -h
-\end{lstlisting}
-
-\begin{steps}
-By now we are becoming familiar with the commands, so once again let's create new gzipped fastq files with the filtered data.
-Once these processes are complete, inspect the reports obtained by \texttt{fastqc}.\\
-\begin{minipage}{\textwidth}
-\begin{lstlisting}
-cd 
-mkdir -p NGSData/RNASeq/filteredData
-cd ~/NGSData/RNASeq/rawData 
-zcat reads1.fq.gz | fastq_quality_filter -Q 33 -q 20 -p 90 -z  -o  ../filteredData/reads1_qual_filtered.fq.gz
-zcat reads2.fq.gz | fastq_quality_filter -Q 33 -q 20 -p 90 -z  -o  ../filteredData/reads2_qual_filtered.fq.gz
-cd ../filteredData
-mkdir ~/QC/RNASeq/filteredData
-fastqc -o ~/QC/RNASeq/filteredData -t 2 reads1_qual_filtered.fq.gz reads2_qual_filtered.fq.gz
-\end{lstlisting}
-\end{minipage}
-\end{steps}
-
-\begin{note}
-\begin{description}[style=multiline,labelindent=0cm,align=right,leftmargin=0.8\descriptionlabelspace,rightmargin=1.5cm,font=\ttfamily]
-\item[-Q 33] Indicates the input quality scores are Phred+33 encoded
-\item[-q 20] quality score threshold of 20
-\item[-p 90] 90 percent of bases in a read must be greater than the threshold
-\item[-z] gzip the output
-\item[-o] Output file name
-\end{description}
-\end{note}
-
-\begin{questions}
-Did we lose a significant number of reads by filtering the data? \\
-\begin{answer}
-Yes, we lost about 10-20\% of the reads from each of the files. \\
-\end{answer}
-
-Did this do a better job of improving the quality of the reads that any of the above methods? \\
-\begin{answer}
-That's pretty subjective really \& once again context is the key issue. \\
-\end{answer}
-\end{questions}
-
-\begin{advanced}
-Did you notice in the above code that we specified the use of PHRED+33 by setting the option \texttt{-Q 33}?
-Did you spot this in the help page for \texttt{fastx\_trimmer} or \texttt{fastq\_quality\_filter}?
-Neither did we.
-Welcome to the joys of bioinformatics!
-A large amount of our time is spent wondering why something didn't work that should've worked.
-Reading \& understanding error messages can be very helpful, and sites like \url{www.biostars.org} and \url{seqanswers.com} can be life savers.
-Many bioinformaticians feel out of their depth a good amount of the time.
-Poor help pages \& poorly written software is everywhere.
-If you're having trouble, you probably won't be the first to have that specific problem.
-Knowing where to look for the answers is one of the best skills you can have.
-\end{advanced}
-
-\section{De-multiplexing Data}
-
-\begin{note}
-One further data pre-processing stage that we may need to undertake is \textit{de-multiplexing} data.
-As mentioned earlier, we can often run multiple samples per lane using unique `\textit{barcode}' sequences to identify which sample a read can be assigned to.
-This approach is very advantageous for researchers, especially in terms of cost and minimising technical variability, but it adds an additional layer of pre-processing that is not as trivial as one would think, given the average 0.1-1\% sequencing error rate that introduces a lot of multiplicity in the actual barcodes. 
-On many occasions the data is de-multiplexed immediately after sequencing, and only FASTQ files that are ready for analyses are distributed. 
-However, you might encounter the necessity to perform the de-multiplexing step yourself, or, be given de-multiplexed FASTQ files, to remove the adaptors manually; thus, it is important to learn how to deal with such data. \\
-\end{note}
-
-\begin{steps}
-Change to the folder \texttt{\~{}/rawData/multiplexed} \& inspect the directory contents.
-\begin{lstlisting}
-cd ~/NGSData/RNASeq/multiplexedData
-ls -lh
-\end{lstlisting}
-Here you can see a fastq file which contains multiplexed data \texttt{barcoded.fq}, and the file \texttt{barcodes.txt} which contains information about which barcode belongs to which sample.
-Let's inspect the barcodes using the \texttt{less} pager, and once again quit by hitting the \textless \texttt{q}\textgreater ~key.
-\begin{lstlisting}
-less barcodes.txt
-\end{lstlisting}
-\end{steps}
-
-\begin{steps}
-In order to separate the reads in 4 different fastq files (one for each barcode/sample) we will use \texttt{fastq-multx}. 
-As we have already learned, before we use a tool, we first need to check the help page.
-\begin{lstlisting}
-fastq-multx -h | less
-\end{lstlisting}
-Note that the abbreviations \texttt{-bol} \& \texttt{-eol} are used to indicate \textit{beginning of line} and \textit{end of line} respectively.
-\end{steps}
-
-\begin{questions}
-We will supply the reads as the file \texttt{barcoded.fq}, and specify the output files as \%.barcoded.fq.
-For reads which match the barcode sequence \texttt{TTGCGA}, going by the help file, what do you think the filename will be that they are output to? \\
-\begin{answer}
-These will be in the file \texttt{sample2.barcoded.fq}.\\
-\end{answer}
-In the help file, you will see the \texttt{-m N} option, which allows specifying mismatches to the barcode to allow for sequencing errors within the barcode.
-Can you think of any potential pitfalls with this approach? \\
-\begin{answer}
-If the barcodes are too closely related the barcodes can be `rescued' to the wrong sequence \& allocated to the wrong sample. \\
-\end{answer}
-Why might we sometimes use the \texttt{-x} option? \\ 
-\begin{answer}
-If we have `rescued' the barcodes using the previous \texttt{-m} option, we may want to initially retain these in the reads to double check that no inappropriate rescues have taken place.\\
-We may also be interested in the error rate within the barcodes.\\
-\end{answer}
-\end{questions}
-
-\begin{steps}
-Let's try de-multiplexing the data, using automatic guessing for the barcode location with the following command.\\
-\begin{lstlisting}
-cd ~/NGSData/RNASeq/multiplexedData
-mkdir ../demultiplexedData
-fastq-multx barcodes.txt barcoded.fq -o ../demultiplexedData/%.fq
-\end{lstlisting}
-After executing the command above you should have five new fastq files: one corresponding to each sample and one for the reads that did not match any of the barcodes.
-\end{steps}
-
-\begin{questions}
-Try generating a QC report for the initial file, and for any one of the samples. 
-How does the sample compare to the report for the initial multiplexed fastq file? \\
-\begin{answer}
-This will vary a little...\\
-\end{answer}
-What happened to the read length? \\
-\begin{answer}
-They will be shorter as the barcode will have been removed.
+Sample1: 80-90bp and Sample2: 60-70bp
 \end{answer}
 \end{questions}
