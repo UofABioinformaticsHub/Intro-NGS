@@ -3,6 +3,7 @@
     Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
 }
 \setModuleContributions{%
+  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
   Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
   Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
 }
@@ -20,13 +21,9 @@ Alternatively, we might be interested in \textit{de novo} genome assembly where 
 \end{note}
 
 \begin{questions}
-For our RNA-Seq data, we could align to the genome or the transcriptome.
-What might be some of the disadvantages of either approach? \\
+For the next section, we are going to align our C. elegans WGS data to our genome without trimming. In the context of the FastQC reports, is this adviseable? \\
 \begin{answer}
-This is more of a discussion question for people to mull over.
-If aligning to the genome, we have the potential to discover novel transcribed regions, however dealing with alternate transcripts can still be difficult.
-Mapping to the transcriptome may be relatively easier \& faster due to the contiguous mappings, however alternate isoforms can still present difficulties.
-Novel isoforms will also fail to be detected using this approach, or undocumented intergenic RNAs. \\
+Generally, it is preferrable to trim the adapters and quality from your sequencing run, as this will impact the alignment of reads to the genome. However, if the sample was prepared well and library construction was called out to specifications, then its reasonable to align the reads to genome without trimming. \\
 \end{answer}
 \end{questions}
 
@@ -37,7 +34,7 @@ This technique comes from computer science \& is really beyond the scope of what
 The essence of it is that we have a very fast searching method, and most aligners use a seed sequence within each read to begin the searching.
 These seeds are then expanded outwards to give the best mapping to a sequence.
 There are many different alignment tools available today \& each one will have a particular strength.
-For example, \texttt{bowtie} is very good for mapping short reads like the ones we have in our RNASeq dataset, whilst \texttt{bowtie2} is more suited to reads longer than 50bp.
+For example, \texttt{bowtie} is very good for mapping short reads, whilst \texttt{bowtie2} or \texttt{bwa} is more suited to reads longer than 50bp.
 \end{note}
 
 \subsubsection{What's the difference}
@@ -46,78 +43,69 @@ Choosing an aligner can be a difficult decision with the differences often being
 Sometimes there is a best choice, other times there really isn't.
 Make sure you've researched relatively thoroughly before deciding which to use.
 
-\section{Aligning our RNASeq reads}
+\section{Aligning our WGS reads}
 \subsubsection{Downloading A Reference Genome}
-\begin{steps}
 To align any reads, we first need to download the appropriate (i.e. latest) genome \& then we can build the index to enable fast searching via the Burrows-Wheeler Transform.
-The RNASeq reads we have today come from \textit{Drosophila melanogaster}, so to find the genome, open Firefox \& head to \url{ftp://ftp.ensembl.org/pub/release-62/fasta/drosophila\_melanogaster}.
-Here you can find the transcriptome (\textit{cdna}), genome (\textit{dna}), proteome (\textit{pep}) \& non-coding RNA (\textit{ncrna}) in separate folders.
-Let's align to the genome, so first create the directory to save it to then download using the linux command \texttt{wget}.
-Instead of typing that enormous last command, navigate to the /dna folder on the ftp server then right-click on the file Drosophila\_melanogaster.BDGP5.25.62.dna\_rm.toplevel.fa.gz \& select \texttt{Copy Link Location}.
-After typing \texttt{wget}, right-click in the terminal \& paste the contents of the clipboard.
-\begin{lstlisting}
-cd ~
-mkdir reference
-cd reference
-wget ftp://ftp.ensembl.org/pub/release-62/fasta/drosophila_melanogaster/dna/Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa.gz
-gunzip Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa.gz
-\end{lstlisting}
-\end{steps}
+Like we've seen in the previous sections, our reads today come from the nematode or Roundworm \textit{Caenorhabditis elegans}. We have a copy of the genome read for you in the rawData directory, however you can always redownload the genome (like you can do with all model genomes) by opening Firefox \& head to \url{ftp://ftp.ensembl.org/pub/release-88/fasta/caenorhabditis_elegans/}.
+(Here you can find the transcriptome (\textit{cdna}), genome (\textit{dna}), proteome (\textit{pep}) \& non-coding RNA (\textit{ncrna}) in separate folders).
 
 \begin{information}
-Now we have unzipped the Drosophila genome, we should have a quick look at the file.
+With our C. elegans genome fasta file, we should have a quick look at the file.
 It will contain all chromosomes \& the mitochondrial sequences.
 \end{information}
 
 \begin{steps}
 We can print out the first 10 lines using the \texttt{head} command.
 \begin{lstlisting}
-head Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa    
+cd ~/rawData/
+gunzip cel1.fa.gz
+head cel1.fa
 \end{lstlisting}
 Note that the first line describes the following sequence \& begins with a \textgreater ~symbol.
 We can use this to search within the file using \textit{regular expressions} \& print all of these description lines.
 \begin{lstlisting}
-grep '^>' Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa
+grep '^>' cel1.fa
 \end{lstlisting}
 Alternatively could simply count them using the \texttt{-c} option.
 \begin{lstlisting}
-grep -c '^>' Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa  
+grep -c '^>' cel1.fa
 \end{lstlisting}
 \end{steps}
 
 \begin{questions}
-What does the ``rm'' stand for in the filename?\\
+How many chromosomes does C. elegans have?\\
 \begin{answer}
-Repeat Masker. This will have repeats \& other difficult sequences masked.
+5 chromosomes, with two additional sequences (the mitochondrial genome and the X chromosome).
 \end{answer}
 \end{questions}
 
 \subsubsection{Building an Index}
-We will align using the tool \texttt{tophat} which is based on the aligner \texttt{bowtie} so requires an index to be built using \texttt{bowtie-build}. 
-This tool is specially designed to handle splice junctions \& is highly suitable for aligning RNASeq reads to a reference genome, such as we have\\
+We will align using the tool \texttt{bwa} which is one of the original Burrows-Wheeler transformation mappers.
+\texttt{bwa} was developed in 2009 by Heng Li (Harvard/Broad Institute, USA).
+From the \texttt{bwa} manual, it details the three specific \texttt{bwa} algorithms: \\
+"BWA-backtrack, BWA-SW and BWA-MEM. The first algorithm is designed for Illumina  sequence  reads up to 100bp, while the rest two for longer sequences ranged from 70bp to 1Mbp. BWA-MEM and BWA-SW share similar features such as long-read support and split alignment, but BWA-MEM, which is the latest, is generally recommended for high-quality queries as it  is  faster  and  more accurate."  \\
+
+Today we will be using bwa-mem to align our C. elegans WGS reads.
 
 \begin{steps}
 Once again, we need to check the help pages.
-Unfortunately the \texttt{tophat} page isn't very friendly on the screen so after entering the following you might have to scroll up a little.
-There are a wealth of options available for you to look through.\\
+Fortunately the \texttt{bwa} page is actually pretty friendly on the screen. \\
 \begin{lstlisting}
-tophat -h
+bwa -h
 \end{lstlisting}
 
-We should also inspect the help page for \texttt{bowtie-build} which we will use to build the index.\\
+We should also inspect the help page for \texttt{bwa index} which we will use to build the index.\\
 \begin{lstlisting}
-bowtie-build -h
+bwa index -h
 \end{lstlisting}
-Note that in the output from this process we are not going to specify a file, but rather a \texttt{basename} which will be included in all files.
+Using this particular process you can usually just run the command on the fasta file and the index will be called by the same filename. However in this case, we will name the index "cel1" (thats cel for C.elegan) and "1" for the version, by using the -p flag/parameter
 \end{steps}
 
 \begin{steps}
-Now that we've had a look, type to following command which will take a few minutes to run, so don't worry if it looks like nothing is happening.
+Now that we've had a look, type to following command which will take a few minutes to run.
 \begin{lstlisting}
-bowtie-build Drosophila_melanogaster.BDGP5.25.62.dna_rm.toplevel.fa D_melanogaster.BDGP5.25.62.dna_rm.toplevel
+bwa index -p Cel1 cel1.fa
 \end{lstlisting}
-Note that we could have specified anything as the basename, but keeping the key information which relates to the original file is often good practice, despite it making for long \& cumbersome commands.
-This is where using a text editor, with cut \& paste can make life a little easier.
 \end{steps}
 
 \begin{steps}
@@ -125,18 +113,29 @@ Let's look at what files have been created.
 \begin{lstlisting}
 ls
 \end{lstlisting}
-Unfortunately the BWT transformed files are in binary, so we can't really see what they look like, but this is what is required by the aligner \textit{tophat}, as well as \textit{bowtie} 
+You should be able to open a few of the files with the "less" command, however the main files (*.sa, *.bwt and *.pac) are the BWT transformed files that are in binary, so we can't really see what they look like, but these are required by the aligner \textit{bwa}.
 \end{steps}
 
 \subsection{Aligning the reads}
-Unfortunately, this will take hours on our VMs so we can't really perform it in the time we have for the workshop.
-Instead, a set of aligned files should be on your VM in the folder \texttt{\~{}/mapped}, which we will explore in the next section.
-\textbf{Please do not run this}, but if we wanted to align the trimmed reads, the command would look like the following.
+Because we only have a small subset of the actual sequencing run, we should be able to run this alignment in a reasonable period of time
 \begin{lstlisting}[style=command_syntax]
-tophat D_melanogaster.BDGP5.25.62.dna_rm.toplevel  \ 
- ~/NGSData/RNASeq/trimmedData/reads1_trimmed.fq.gz \
-  ~/NGSData/RNASeq/trimmedData/reads2_trimmed.fq.gz
+bwa mem Cel1 WGS_SRR2003569_1.fastq.gz WGS_SRR2003569_2.fastq.gz \
+        | samtools view -bhS -> WGS_SRR2003569.bam
 \end{lstlisting}
+
+Let's break down this command a little. The first part of the command:
+\begin{lstlisting}[style=command_syntax]
+bwa mem Cel1 WGS_SRR2003569_1.fastq.gz WGS_SRR2003569_2.fastq.gz
+\end{lstlisting}
+will align our compressed sequenced reads to the Cel1 bwa index that we made.
+Usually you can create a SAM file (see next section) to store all the alignment data. SAM files however are text files which can take up a significant amount of disk space, so its much more efficient to pipe it to the \textit{samtools} command and create a compressed binary SAM file (called BAM).
+To do this, we run the program \textit{samtools}:
+\begin{lstlisting}[style=command_syntax]
+samtools view -bhS - > WGS_SRR2003569.bam
+\end{lstlisting}
+In this context, \textit{samtools view} is the general command that allows the conversion of the SAM to BAM.
+There is another more compressed version of the SAM file, called CRAM, which you can also create using \textit{samtools view}.
+However, we will not use that today.
 
 \begin{advanced}
 \begin{questions}
@@ -149,8 +148,3 @@ If they can solve that, tell them to write a paper on it \& become outrageously 
 \end{answer}
 \end{questions}
 \end{advanced}
-
-\begin{bonus}
-If you are running well ahead of time, try downloading the repeat masked version of the sequence for the chromosome 2L from the \texttt{ftp} site.
-Align the reads to to this sequence only.
-\end{bonus}
