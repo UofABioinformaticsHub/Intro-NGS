@@ -3,6 +3,7 @@
     Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
 }
 \setModuleContributions{%
+  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
   Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
   Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
 }
@@ -16,61 +17,68 @@ Reads that have been aligned to a reference are no longer stored in fastq format
 These two formats are virtually identical, however the SAM format is a text file which is easily readable to human eyes, whilst a BAM file is the same information converted to binary.
 This conversion means that file sizes are smaller, and that computational processes can be performed more efficiently.
 Typically, we work with BAM files as these provide considerable gains in storage space \& analytic speed.
-The tools we use to inspect these files are provided in the package samtools, which has been installed on your VM. \\
+The tools we use to inspect these files are provided in the package \textit{samtools}, which has been installed on your VM.
+For this section we will only look at BAM files, removing the need to convert all our files between the two formats. \\
 \end{information}
 
 \begin{steps}
-The reads from the previous dataset which mapped to \textit{chr2L} of \textit{D. melanogaster} are in the folder \texttt{\~{}/NGSData/RNASeq/alignedData}.
-Let's look at the first 5 lines of the file.
+The reads from the previous dataset which mapped to \textit{C. elegans} should be in the folder \texttt{\~{}/rawData/WGS}.
+Let's look at the first 10 lines of the file.
 \begin{lstlisting}
-cd ~/NGSData/RNASeq/alignedData
-head -n5 chr2L.sam  
+cd ~/rawData/WGS
+samtools view -h WGS_SRR065388.bam | head -n10
 \end{lstlisting}
 \end{steps}
+
+\begin{note}
+Notice that when we want to look at the BAM file, we always need to call \textit{samtools view} first.
+The \textit{samtools view} command is essentially the zcat/cat command that we used in previous sections.
+We use it to look at the BAM file in much the same way as cat/less/more with text files, except the file remains in binary and a compressed format.
+\end{note}
+
+\begin{note}
+FYI: If you want to convert between SAM and BAM formats you can use these commands:
+\begin{lstlisting}
+# From BAM to SAM
+samtools view -h WGS_SRR065388.bam > WGS_SRR065388.sam
+
+# From SAM to BAM
+samtools view -bhS -o WGS_SRR065388.bam WGS_SRR065388.sam
+\end{lstlisting}
+\end{note}
 
 \begin{questions}
 Can you distinguish between the header of the SAM format and the actual alignments?
 \begin{answer}
 The header line starts with the letter `@', i.e.: \\
 \begin{tabular}{llll}
-@HD & VN:1.0 & SO:unsorted & \\
-@SQ & SN:chr2L & LN:23011544 & \\
-@PG & ID:TopHat	& VN:1.2.0 & CL:/g/steinmetz/collaboration/... \\
+@SQ & SN:chrI & LN:15072434 \\
+@SQ & SN:chrII & LN:15279421 \\
+@SQ & SN:chrIII & LN:13783801 \\
+@SQ & SN:chrIV & LN:17493829 \\
+@SQ & SN:chrM & LN:13794 \\
+@SQ & SN:chrV & LN:20924180 \\
+@SQ & SN:chrX & LN:17718942 \\
 \end{tabular}
 
 While the actual alignments start with read id, i.e.: \\
 
 \begin{tabular}{llll}
-SRR031714.5049824 & 99 & chr2L & etc \\
-SRR031714.5049824 & 147 & chr2L & etc \\
+SRR065388.1 & 99 & chrII & etc \\
+SRR065388.1 & 147 & chrII & etc \\
 \end{tabular}
 
 \end{answer}
 What kind of information does the header provide? \\
 \begin{answer}
 \begin{itemize}
-\item @HD: Header line; VN: Format version; SO: the sort order of alignments.
 \item @SQ: Reference sequence information; SN: reference sequence name; LN: reference sequence length.
-\item @PG: Read group information; ID: Read group identifier; VN: Program version; CL: the command line that produced the alignments.
+\item @PG: Program information; ID: Program name; VN: Program version; CL: the command line that produced the alignments.
+\item \textbf{OPTIONAL:} @HD: Header line
+\item \textbf{OPTIONAL:} @RG: Read Group Information line
 \end{itemize}
 \end{answer}
 \end{questions}
-
-\section{Conversion to BAM format}
-\begin{steps}
-The BAM format is much more convenient computationally, so we can convert this file into the BAM format using \texttt{samtools view}.
-Whilst this line of code may look counter-intuitive, remember that the first section is all the information about how to process the input, \& specify the output, whilst the final section is the file that the command will operate on.
-First look through the help page to understand what you are asking the tool to perform. \\
-\begin{lstlisting}
-samtools view 
-samtools view -bS -o chr2L.bam chr2L.sam
-\end{lstlisting}
-Have a look at the file sizes to see the difference.
-Note that the BAM file is about 12\% of the size, which can be an important consideration when managing large datasets.
-\begin{lstlisting}
-ls -lh
-\end{lstlisting}
-\end{steps}
 
 \section{Handling BAM files}
 \begin{steps}
@@ -78,11 +86,11 @@ As BAM files are in binary format they will look like gibberish if we try to rea
 Instead we can inspect them by using \texttt{samtools view} again.
 To view the header we use:\\
 \begin{lstlisting}
-samtools view -H chr2L.bam
+samtools view -H WGS_SRR065388.bam
 \end{lstlisting}
 Whereas to look through the first few mapped reads, we can use:
 \begin{lstlisting}
-samtools view chr2L.bam | head
+samtools view WGS_SRR065388.bam | head
 \end{lstlisting}
 As this data can easily spill across lines, it might be helpful to maximise your terminal to see the complete line structure.
 \end{steps}
@@ -133,9 +141,9 @@ For example, if the read is paired \& mapped in a proper pair, but no other attr
 \begin{questions}
 What value could a flag take if it had the following set of properties?
 	\begin{enumerate}
-	\item the read was paired; 
+	\item the read was paired;
 	\item the read was mapped in a proper pair
-	\item the read was was the first in the pair; \& 
+	\item the read was was the first in the pair; \&
 	\item the alignment was a supplementary alignment
 	\end{enumerate}
 \begin{answer}
@@ -154,12 +162,12 @@ If you searched for flags with the value 1, you wouldn't obtain the alignments w
 Let's try this using the command \texttt{samtools view} with the option \texttt{-f N} to include reads with a flag set and the option \texttt{F N} to exclude reads with a specific flag set.
 Let's get the first few reads which are mapped in a proper pair, so the flag `2' will be set.\\
 \begin{lstlisting}
-samtools view -f 2 chr2L.bam | head
+samtools view -f 2 WGS_SRR065388.bam | head
 \end{lstlisting}
 Note that none of the flags actually have the value 2, but if you typed the values 99, 147 or 163 into the web page, you'll see that this flag is set for all of these values.
 Similarly if we wanted to extract only the reads which are NOT mapped in a proper pair we would change the option to a upper-case F.
 \begin{lstlisting}
-samtools view -F 2 chr2L.bam | head
+samtools view -F 2 WGS_SRR065388.bam | head
 \end{lstlisting}
 Again, try entering a few of these sample values into the web page and you will see that this flag is not set for any of these values.
 \end{steps}
@@ -168,42 +176,39 @@ Again, try entering a few of these sample values into the web page and you will 
 This can be a very helpful tool for extract subsets of your aligned reads.
 For example, we can create a new BAM file with only the reads which were aligned in a proper pair by entering the following command.
 \begin{lstlisting}
-samtools view -f 2 -bo chr2L.paired.bam chr2L.bam
+samtools view -f 2 -bo WGS_SRR065388.paired.bam WGS_SRR065388.bam
 ls -lh
 \end{lstlisting}
 You can pull out highly specific combinations of alignments should you so choose
 \end{information}
 
+\begin{information}
+The program \textit{samtools} also has some handy commands that give you information about the data presented in the BAM file.
+We can actually get information about the number of reads that have particular flags with the \textit{samtools flagstat} command
+\begin{lstlisting}
+samtools flagstat WGS_SRR065388.bam
+\end{lstlisting}
+Newer version of \textit{samtools} also have a stats command, which gives you a tonne of information about reads within the BAM file
+\end{information}
 
 \subsection{CIGAR strings}
 \begin{note}
 These give useful information about the type of alignment that has been performed on the read.
-In the first few reads we called up earlier, most had the value \texttt{37M}, which stands for 37 \textbf{M}atches.
+In the first few reads we called up earlier, most had the value \texttt{35M}, which stands for 37 \textbf{M}atches.
 The other abbreviations in common use are I (insertion) \& D (deletion), however these are not found in this bam file.
 \end{note}
 
 \begin{questions}
-A CIGAR string contained in this file is `10M240N27M'.
+A CIGAR string contained in this file is `88M12S'.
 Can you think of an interpretation of this string? \\
 \begin{answer}
-10 Matches, 240 Skipped bases in the reference, then 27 Matches.
-This may represent a splice junction as determined by \texttt{tophat}
+88 Matches, 12 Skipped bases in the reference.
 \end{answer}
-\end{questions}
-
-\begin{advanced}
-Knowing this pattern as splice junctions, you could write a \textit{regular expression} search to find only the alignments that contain potential splice junctions.
-\begin{questions}
-What would be a pattern to search for, and how would you create this as a new BAM file.
+How many reads were mapped and paired in this dataset?
 \begin{answer}
-This will pull out the first few.
-\begin{lstlisting}
-samtools view chr2L.bam | egrep '[0-9]+M[0-9]+N[0-9]+M' | head
-\end{lstlisting}
-To really do it correctly, you'd probably have to fudge a new sam file with the header, the cat the output \& convert to BAM.
+Mapped: 3816190, Mapped and paired: 3810282
 \end{answer}
 \end{questions}
-\end{advanced}
 
 \section{Viewing the Alignments}
 In this final section we will use the package IGV Viewer to inspect the alignments in this bam file.
@@ -219,17 +224,11 @@ The second step will be to index the sorted file to enable faster file access by
 
 \begin{steps}
 \begin{lstlisting}
-cd ~/NGSData/RNASeq/alignedData
-samtools sort chr2L.bam chr2L.sorted
-samtools index chr2L.sorted.bam
+cd ~/rawData/WGS
+samtools sort WGS_SRR2003569.bam -o WGS_SRR2003569.sorted.bam
+samtools index WGS_SRR2003569.sorted.bam
 \end{lstlisting}
 \end{steps}
-
-\begin{information}
-Note that in keeping with the weirdness of bioinformatics \textit{the input file is not specified last in the tool} \texttt{samtools sort}.
-This would normally be the convention but for some reason the programmers have chosen not to follow this convention.
-The final setting given to the command is the prefix that the output file will be given. \\
-\end{information}
 
 The command \texttt{samtools index} then created a file with the exact same name as the input file, but with the extra suffix \texttt{.bai}, which indicates this is an index file.\\
 
@@ -238,28 +237,25 @@ Now that we've got our files ready to view we can load the IGV browser.
 This may take a minute or two so please be patient.
 
 \begin{lstlisting}
-igv
+/opt/local/IGV_2.3.90/igv.sh
 \end{lstlisting}
 \end{steps}
 
 \begin{steps}
-Once the browser has opened, go to the drop-down menu \& load the genome for \textit{Drosophila melanogaster} (dm3).
+Once the browser has opened, go to the drop-down menu \& load the genome for \textit{Caenorhabditis elegans} (cel1).
 (This will create a .genome file in your \texttt{\~{}/igv} folder.)
 Now we can load our sorted .bam file using  \textit{File $>$ Load from File} in the top menu, and make sure you load the sorted .bam file.
 This will automatically check for the indexed file we created a minute ago. \\
 
-In the second ``button" go to the region chr2L, then enter the word \textit{poe} in the window next to this.
-This will take us to the gene \textit{poe} and we will be able to see the reads in our .bam file that have been aligned to this gene.
+In the second "button" go to the region chrI, then enter the word \textit{del-1} in the window next to this.
+This will take us to the gene \textit{del-1} and we will be able to see the reads in our .bam file that have been aligned to this gene.
 Unfortunately with these alignments, the further out we zoom we will begin to lose our alignment information.
 
-Have a look at the gene \textit{drongo} as well, and have a look around by clicking the navigation at the very top of the graphical display.
+Have a look at the gene \textit{elf-1} as well, and have a look around by clicking the navigation at the very top of the graphical display.
 \end{steps}
 
 \section{Bonus For Those Well Ahead of the Pack}
 \begin{advanced}
-For those who still feel like they want more, try running an entire pipeline on the iCLIP data, including adapter removal and read trimming.
-Record your commands in the \texttt{gedit} text editor so you have a record of what you did.
-Instead of aligning to the entire human genome, try just aligning to chromosome 17.
+For those who still feel like they want more, try trimming this dataset to see how it differs from the unclipped analysis.
+Record your commands in the \texttt{nano} text editor so you have a record of what you did.
 \end{advanced}
-
-
