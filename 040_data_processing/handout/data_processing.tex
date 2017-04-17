@@ -100,7 +100,7 @@ What top 5 barcodes are found in our data? Do the top two reflect our the barcod
 \end{answer}
 The command above is quite long and contains multiple unix commands that are separated by a pipe. What does each command do?
 \begin{answer}
-zcat Run1_R1.fastq.gz: Prints the compressed fastq file to screen \\
+zcat Run1\_R1.fastq.gz: Prints the compressed fastq file to screen \\
 sed -n '2~4p': Prints the second line (sequence of each fastq file) \\
 cut -c 1-7: Get the first 7 characters \\
 sort: sort the sequences \\

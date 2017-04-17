@@ -37,12 +37,13 @@ This step may vary depending on your experiment, but the important concept to no
 These include 1) the \textit{sequencing primers}, 2) index \& /or \textit{barcode} sequences, and 3) the flow-cell binding oligos.
 
 To demonstrate these concepts further, observe the following figure that shows the DNA construct needed to run an illumina sequencing run, and the amplification steps required:
+\end{note}
 
 \begin{figure}[h!]
   \centering
     \includegraphics[width=0.8\textwidth]{libprep.jpg}
 \end{figure}
-\end{note}
+
 
 \begin{questions}
 Assuming each 'spot' on the flowcell is generated from a unique DNA sequence, there are two important sequencing errors that will occur during this process.
@@ -63,7 +64,6 @@ The figure above that shows the setup of the sequenced DNA fragment contains two
 \begin{answer}
 A barcode is sequenced by the machine, while an index is only \textit{read} by the machine, and is not found within your sequence
 \end{answer}
-\end{questions}
 
 What is likely to happen if your DNA insert is shorter than the machine's read length? (e.g. My DNA sequence is 50bp, but the Illumina sequencing run is 75 base pairs) \\
 \begin{answer}
@@ -92,7 +92,7 @@ zcat WGS_SRR065388_1.fastq.gz | head -n8
 \end{steps}
 
 \begin{information}
-In the above command, we have used a trick commonly used in Linux systems where we have taken the output of one command (\texttt{zcat WGS_SRR065388_1.fastq.gz}) and sent it to another command (\texttt{head}) by using the \textit{pipe symbol} ($\mid$).
+In the above command, we have used a trick commonly used in Linux systems where we have taken the output of one command (\texttt{zcat WGS\_SRR065388\_1.fastq.gz}) and sent it to another command (\texttt{head}) by using the \textit{pipe symbol} ($\mid$).
 This is literally like sticking a pipe on the end of a process \& redirecting the output to the input another process.
 If you think of things as being like a data factory you can almost visualise it.
 There are no limits to the number of commands that you can string together using this trick.
@@ -124,13 +124,13 @@ Let's have a brief look at each of these lines and what they mean.\\
 \subsubsection*{The read identifier}
 This line begins with an \texttt{@} symbol and although there is some variability, it traditionally has several components.
 Today's data have been sourced from an EBI data repository with the identifier \texttt{SRR065388}.
-For the first sequence in this file, we have the full identifier \texttt{@SRR065388.1 HWUSI-EAS687_61DAJ:6:1:1054:18644/1} which has the following components: \\
+For the first sequence in this file, we have the full identifier \texttt{@SRR065388.1 HWUSI-EAS687\_61DAJ:6:1:1054:18644/1} which has the following components: \\
 
 \begin{tabular}{|p{5cm} | p{9cm} |}
   \hline
   \texttt{SRR065388.1} & The aforementioned EBI identifier \& the sequence ID within the file. As this is the first read, we have the number 1. NB: This identifier is \textbf{not} present when data is obtained directly from the machine or service provider.\\
   \hline
-  \texttt{HWUSI-EAS687_61DAJ} & The unique machine ID \\
+  \texttt{HWUSI-EAS687\_61DAJ} & The unique machine ID \\
   \hline
   \texttt{6} & The flowcell lane \\
   \hline
@@ -221,7 +221,7 @@ L - Illumina 1.8+ Phred+33,  raw reads typically (0, 41) \\
 \end{minipage}
 
 \begin{questions}
-Have a look at the quality scores in our paired-end reads (WGS_SRR065388_1.fastq.gz and WGS_SRR065388_2.fastq.gz)
+Have a look at the quality scores in our paired-end reads (WGS\_SRR065388\_1.fastq.gz and WGS\_SRR065388\_2.fastq.gz)
 Which coding system do you think has been used for the reads that we have? \\
 \begin{answer}
 PHRED+33.
