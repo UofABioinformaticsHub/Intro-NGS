@@ -1,10 +1,8 @@
 #!/bin/bash -l
 
-# setup directories
-cd ~/
-mkdir ngs_workshop
-wget
-tar xvzf IntroToNGS_data.tar.gz
+# setup data and directories
+cd ~/; \
+wget -qO- "https://universityofadelaide.box.com/shared/static/62vo1sbau2yk2l646xkpy2f5shcmnctz.gz" | tar xvz
 
 # Install java and fastQC
 sudo apt-get install -y python-software-properties debconf-utils
@@ -14,6 +12,7 @@ echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | 
 sudo apt-get -y install oracle-java8-installer
 sudo apt-get -y install fastx-toolkit
 
+# Install new version of FastQC
 wget https://launchpad.net/ubuntu/+archive/primary/+files/fastqc_0.11.5+dfsg-3_all.deb
 sudo dpkg -i fastqc_0.11.5+dfsg-3_all.deb
 sudo apt-get install -f
