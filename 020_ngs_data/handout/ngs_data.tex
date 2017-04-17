@@ -86,13 +86,13 @@ We should still have a terminal open from the previous section \&, if necessary,
 The command \texttt{zcat} unzips a file \& prints the output to the terminal, or standard output (\textit{stdout}).
 If we did this to these files, we would see a stream of data whizzing past in the terminal, but instead we can just pipe the output of \texttt{zcat} to the command head to view the first 10 lines of a file. \\
 \begin{lstlisting}
-cd ~/rawData
-zcat SRR2003569_1.fastq.gz | head -n8
+cd ~/rawData/WGS
+zcat WGS_SRR065388_1.fastq.gz | head -n8
 \end{lstlisting}
 \end{steps}
 
 \begin{information}
-In the above command, we have used a trick commonly used in Linux systems where we have taken the output of one command (\texttt{zcat reads1.fq.gz}) and sent it to another command (\texttt{head}) by using the \textit{pipe symbol} ($\mid$).
+In the above command, we have used a trick commonly used in Linux systems where we have taken the output of one command (\texttt{zcat WGS_SRR065388_1.fastq.gz}) and sent it to another command (\texttt{head}) by using the \textit{pipe symbol} ($\mid$).
 This is literally like sticking a pipe on the end of a process \& redirecting the output to the input another process.
 If you think of things as being like a data factory you can almost visualise it.
 There are no limits to the number of commands that you can string together using this trick.
@@ -123,22 +123,22 @@ Let's have a brief look at each of these lines and what they mean.\\
 
 \subsubsection*{The read identifier}
 This line begins with an \texttt{@} symbol and although there is some variability, it traditionally has several components.
-Today's data have been sourced from an EBI data repository with the identifier \texttt{SRR2003569}.
-For the first sequence in this file, we have the full identifier \texttt{@SRR2003569.1 JLK5VL1:245:D1DF6ACXX:6:1101:4181:2239/1} which has the following components: \\
+Today's data have been sourced from an EBI data repository with the identifier \texttt{SRR065388}.
+For the first sequence in this file, we have the full identifier \texttt{@SRR065388.1 HWUSI-EAS687_61DAJ:6:1:1054:18644/1} which has the following components: \\
 
 \begin{tabular}{|p{5cm} | p{9cm} |}
   \hline
-  \texttt{SRR2003569.1} & The aforementioned EBI identifier \& the sequence ID within the file. As this is the first read, we have the number 1. NB: This identifier is \textbf{not} present when data is obtained directly from the machine or service provider.\\
+  \texttt{SRR065388.1} & The aforementioned EBI identifier \& the sequence ID within the file. As this is the first read, we have the number 1. NB: This identifier is \textbf{not} present when data is obtained directly from the machine or service provider.\\
   \hline
-  \texttt{JLK5VL1:245:D1DF6ACXX} & The unique machine ID \\
+  \texttt{HWUSI-EAS687_61DAJ} & The unique machine ID \\
   \hline
   \texttt{6} & The flowcell lane \\
   \hline
-  \texttt{1101} & The tile within the flowcell lane \\
+  \texttt{1} & The tile within the flowcell lane \\
   \hline
-  \texttt{4181} & The $x$-coordinate of the cluster within the tile \\
+  \texttt{1054} & The $x$-coordinate of the cluster within the tile \\
   \hline
-  \texttt{2239} & The $y$-coordinate of the cluster within the tile \\
+  \texttt{18644} & The $y$-coordinate of the cluster within the tile \\
   \hline
   \texttt{/1} & Indicates that this is the first read in a set of paired end reads \\
   \hline
@@ -150,7 +150,7 @@ By and large you won't need to utilise most of this information, but it can be h
 \begin{steps}
 While we are inspecting our data, have a look at the beginning of the second file.
 \begin{lstlisting}
-zcat SRR2003569_2.fastq.gz | head -n8
+zcat WGS_SRR065388_2.fastq.gz | head -n8
 \end{lstlisting}
 Here you will notice that the information in the identifier is identical to the first file we inspected, with the exception that there is a \texttt{/2} at the end.
 This indicates that these reads are the second set in what are known as \textit{paired-end} reads, as were introduced in the above video.
@@ -221,7 +221,7 @@ L - Illumina 1.8+ Phred+33,  raw reads typically (0, 41) \\
 \end{minipage}
 
 \begin{questions}
-Have a look at the quality scores in our paired-end reads (SRR2003569_1.fastq.gz and SRR2003569_2.fastq.gz)
+Have a look at the quality scores in our paired-end reads (WGS_SRR065388_1.fastq.gz and WGS_SRR065388_2.fastq.gz)
 Which coding system do you think has been used for the reads that we have? \\
 \begin{answer}
 PHRED+33.

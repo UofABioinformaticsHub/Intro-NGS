@@ -89,7 +89,7 @@ For more information on Illumina cluster density and other technical aspects of 
 To demonstrate demultiplexing we will use the a sequencing run with two samples that have a 7bp barcode. Our barcode sequences should be "GCGTAGT" (for sample1) and "CCTCGTA" (for sample2). Lets first see what possible barcodes are available in the first 7bp of our dataset and see if it matches what we expect:
 \begin{lstlisting}
 cd ~/rawData/Multiplexed/Run1_R1.fastq.gz
-zcat Run1_R1.fastq.gz |sed -n '2~4p' | cut -c 1-7 | sort | uniq -c | sort -nr | head -n10
+zcat Run1_R1.fastq.gz | sed -n '2~4p' | cut -c 1-7 | sort | uniq -c | sort -nr | head -n10
 \end{lstlisting}
 \end{steps}
 
@@ -167,10 +167,10 @@ Now we can trim the data our demultiplexed data using the Illumina Nextera paire
 cd ~/rawData/Multiplexed
 mkdir -p ~/rawData/Multiplexed/trimmedData
 cutadapt -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCACNNNNNNATCTCGTATGCCGTCTTCTGCTTG \
--A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT \
--o ~/rawData/Multiplexed/trimmedData/Sample1_r1_trim1.fastq \
--p ~/rawData/Multiplexed/trimmedData/Sample1_r2_trim2.fastq \
-Sample1_r1.fastq Sample1_r2.fastq
+    -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT \
+    -o ~/rawData/Multiplexed/trimmedData/Sample1_r1_trim1.fastq \
+    -p ~/rawData/Multiplexed/trimmedData/Sample1_r2_trim2.fastq \
+    Sample1_r1.fastq Sample1_r2.fastq
 \end{lstlisting}
 
 Now lets do this with Sample2.

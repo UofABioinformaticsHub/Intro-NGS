@@ -242,13 +242,13 @@ Open this file in the \texttt{less} pager, and once you've had a look type \text
 First make sure you are in the correct directory, then inspect these files using \texttt{less}.
 \begin{lstlisting}
 cd ~/QC/RNASeq/rawData
-unzip -oc reads1.fq_fastqc.zip '*summary.txt' | less
+unzip -oc SmallRNA_SRR2039540_fastqc.zip '*summary.txt' | less
 \end{lstlisting}
 
 The raw numbers for each of the sections are in the file fastqc\_data.txt.
 Page through the file, until you lose interest then quit the pager.
 \begin{lstlisting}
-unzip -oc reads1.fq_fastqc.zip '*fastqc_data.txt' | less
+unzip -oc SmallRNA_SRR2039540_fastqc.zip '*fastqc_data.txt' | less
 \end{lstlisting}
 
 We can also extract any specific image file for compiling into a pdf, or find whatever we need by using these ideas.
