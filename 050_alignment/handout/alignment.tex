@@ -1,9 +1,9 @@
 \setModuleTitle{Aligning Reads To a Reference Sequence}
 \setModuleAuthors{%
+  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
     Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
 }
 \setModuleContributions{%
-  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
   Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
   Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
 }
@@ -83,9 +83,9 @@ How many chromosomes does C. elegans have?\\
 We will align using the tool \texttt{bwa} which is one of the original Burrows-Wheeler transformation mappers.
 \texttt{bwa} was developed in 2009 by Heng Li (Harvard/Broad Institute, USA).
 From the \texttt{bwa} manual, it details the three specific \texttt{bwa} algorithms: \\
-"BWA-backtrack, BWA-SW and BWA-MEM. The first algorithm is designed for Illumina  sequence  reads up to 100bp, while the rest two for longer sequences ranged from 70bp to 1Mbp. BWA-MEM and BWA-SW share similar features such as long-read support and split alignment, but BWA-MEM, which is the latest, is generally recommended for high-quality queries as it  is  faster  and  more accurate."  \\
+\textit{BWA-backtrack}, \textit{BWA-SW} and \textit{BWA-MEM}. The first algorithm is designed for Illumina  sequence  reads up to 100bp, while the rest two for longer sequences ranged from 70bp to 1Mbp. BWA-MEM and BWA-SW share similar features such as long-read support and split alignment, but BWA-MEM, which is the latest, is generally recommended for high-quality queries as it  is  faster  and  more accurate."  \\
 
-Today we will be using bwa-mem to align our C. elegans WGS reads.
+Today we will be using \textit{bwa-mem} to align our C. elegans WGS reads.
 
 \begin{steps}
 Once again, we need to check the help pages.
@@ -118,7 +118,7 @@ You should be able to open a few of the files with the "less" command, however t
 
 \subsection{Aligning the reads}
 Because we only have a small subset of the actual sequencing run, we should be able to run this alignment in a reasonable period of time
-\begin{lstlisting}[style=command_syntax]
+\begin{lstlisting}
 bwa mem Cel1 WGS_SRR2003569_1.fastq.gz WGS_SRR2003569_2.fastq.gz \
         | samtools view -bhS -> WGS_SRR2003569.bam
 \end{lstlisting}

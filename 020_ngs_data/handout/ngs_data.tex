@@ -169,7 +169,7 @@ An example of this format would be:
 \end{lstlisting}
 Note the ``Y'' in the final fields, which indicates this sequence would have \textbf{failed} QC.
 These low-quality reads were automatically removed in earlier versions of the pipeline and were omitted from the fastq file.
-However, they are now included with this additional field indicated in the read identifier.
+However, they are now included by some sequence providers with this additional field indicated in the read identifier.
 Inspection of this line will enable you to find out which version of the casava pipeline has been used, and whether you need to perform any additional filtering steps to remove low quality reads.
 The tool \texttt{fastq\_illumina\_filter} is designed to remove these reads for you \& the tool, along with usage instructions can be found at \url{http://cancan.cshl.edu/labmembers/gordon/fastq\_illumina\_filter/}.\\
 \end{information}
@@ -182,13 +182,15 @@ These are presented as single \textit{ascii} text characters for simple visual a
 In the ascii text system, each character has a numeric value which we can interpret as an integer.
 Head to the website with a description of these at \url{http://en.wikipedia.org/wiki/ASCII#ASCII\_printable\_code\_chart}.\\
 
-The first 31 characters are non-printable \& contain things like end-of-line marks and tab spacings, and note that the first printable character after the space is `!' which corresponds to the value 33.
+The first 31 ASCII characters are non-printable \& contain things like end-of-line marks and tab spacings, and note that the first printable character after the space (character 32) is `!' which corresponds to the value 33.
 In short, the values 33-47 are symbols like !, \", \#, \$ etc, whereas the values 48-57 are the characters 0-9.
 Next are some more symbols (including @ for the value 64), with the upper case characters representing the values 65-90 \& the lower case letters representing the values 97-122.\\
 
-In the line of quality scores for the first read in the iCLIP sample above, the first character is ``=", so this base has a quality score of 61.
-The second symbol in this line is``D", so the second base has a quality score of 68.
 \end{information}
+
+\begin{questions}
+In the sample you inspected above, try and determine the quality scores for the first 5 bases.\\
+\end{questions}
 
 \subsubsection{The PHRED +33/64 Scoring System}
 \begin{information}
