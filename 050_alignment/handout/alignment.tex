@@ -89,16 +89,16 @@ Today we will be using \textit{bwa-mem} to align our C. elegans WGS reads.
 
 \begin{steps}
 Once again, we need to check the help pages.
-Fortunately the \texttt{bwa} page is actually pretty friendly on the screen. \\
+Fortunately the \texttt{bwa} page is actually pretty friendly on the screen and appears without the usual \texttt{-h} option. \\
 \begin{lstlisting}
-bwa -h
+bwa
 \end{lstlisting}
 
 We should also inspect the help page for \texttt{bwa index} which we will use to build the index.\\
 \begin{lstlisting}
-bwa index -h
+bwa index
 \end{lstlisting}
-Using this particular process you can usually just run the command on the fasta file and the index will be called by the same filename. However in this case, we will name the index "cel1" (thats cel for C.elegan) and "1" for the version, by using the -p flag/parameter
+Using this particular process you can usually just run the command on the fasta file and the index will be called by the same filename. However in this case, we will name the index "cel1" (thats cel for \textit{C. elegans}) and "1" for the version, by using the -p flag/parameter
 \end{steps}
 
 \begin{steps}
@@ -125,7 +125,7 @@ bwa mem Cel1 WGS_SRR2003569_1.fastq.gz WGS_SRR2003569_2.fastq.gz \
 
 Let's break down this command a little. The first part of the command:
 \begin{lstlisting}[style=command_syntax]
-bwa mem Cel1 WGS_SRR2003569_1.fastq.gz WGS_SRR2003569_2.fastq.gz
+bwa mem Cel1 WGS/WGS_SRR2003569_1.fastq.gz WGS/WGS_SRR2003569_2.fastq.gz
 \end{lstlisting}
 will align our compressed sequenced reads to the Cel1 bwa index that we made.
 Usually you can create a SAM file (see next section) to store all the alignment data. SAM files however are text files which can take up a significant amount of disk space, so its much more efficient to pipe it to the \textit{samtools} command and create a compressed binary SAM file (called BAM).

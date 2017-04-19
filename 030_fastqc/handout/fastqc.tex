@@ -70,7 +70,7 @@ The above command gave both files to fastqc, told it where to write the output (
 The reports are in the html files, with all of the plots stored in the zip files.
 To look at the QC report for each file, we can use \texttt{firefox}.
 \begin{lstlisting}
-cd ~/QC/RNASeq/rawData
+cd ~/QC/WGS/rawData
 ls -lh
 firefox WGS_SRR065388_1_fastqc.html WGS_SRR065388_2_fastqc.html &
 \end{lstlisting}
@@ -124,10 +124,9 @@ We will deal with trimming the reads in a later section, but start to think abou
 
 \paragraph{Per Tile Sequence Quality}
 This section just gives a quick visualisation about any physical effects on sequence quality due to the tile within the each flowcell.
-For the first file, you will notice an even breakdown in the quality of sequences near the end of the reads across all tiles.
-In our second QC report, you will notice a poor quality around the 25th base in the 2nd (or 3rd) tile.
 Generally, this would only be of note if drilling deeply to remove data from tiles with notable problems.
 Most of the time we don't factor in spatial effects, unless alternative approaches fail to address the issues we are dealing with.
+It can occasionally be used to request a repeat sequencing run, although if this has been a factor, it is likely that other plots will be more compelling.
 
 \paragraph*{Per Sequence Quality Scores}
 This is just the distribution of average quality scores for each sequence.
@@ -241,7 +240,7 @@ The overall summary in terms of PASS/FAIL is contained in the `summary.txt' file
 Open this file in the \texttt{less} pager, and once you've had a look type \texttt{q} to quit, as we have become familiar with.
 First make sure you are in the correct directory, then inspect these files using \texttt{less}.
 \begin{lstlisting}
-cd ~/QC/RNASeq/rawData
+cd \~/QC/small\_RNA/rawData
 unzip -oc SmallRNA_SRR2039540_fastqc.zip '*summary.txt' | less
 \end{lstlisting}
 
