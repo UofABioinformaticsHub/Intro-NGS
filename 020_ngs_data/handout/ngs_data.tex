@@ -3,7 +3,7 @@
     Steve Pederson, Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
 }
 \setModuleContributions{%
-  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{stephen.pederson@adelaide.edu.au}\\
+  Jimmy Breen, Robinson Research Institute \& Bioinformatics Hub, University of Adelaide \mailto{jimmy.breen@adelaide.edu.au}\\
   Dan Kortschak, Adelson Research Group, University of Adelaide \mailto{dan.kortschak@adelaide.edu.au} \\
   Terry Bertozzi, SA Museum \mailto{Terry.Bertozzi@samuseum.sa.gov.au}
 }
@@ -164,9 +164,9 @@ It is also worth noting that the reads we've just glanced at come from a version
 The casava version really just describes how old the software on the Illumina machine is \& we don't choose this.
 For more recently generated reads where the casava software is \textgreater 1.8 of the casava, there is an additional field in the identifier which indicates whether a read would have \textit{failed} an initial QC check.
 An example of this format would be:
-\begin{lstlisting}[style=command_syntax]
-@D5B4KKQ1:554:C4YHPACXX:4:1101:1084:2100 1:Y:0:
-\end{lstlisting}
+\begin{center}
+\texttt{@D5B4KKQ1:554:C4YHPACXX:4:1101:1084:2100 1:Y:0:}
+\end{center}
 Note the ``Y'' in the final fields, which indicates this sequence would have \textbf{failed} QC.
 These low-quality reads were automatically removed in earlier versions of the pipeline and were omitted from the fastq file.
 However, they are now included by some sequence providers with this additional field indicated in the read identifier.
