@@ -2,7 +2,7 @@
 
 # setup data and directories
 cd ~/; \
-wget -qO- "https://universityofadelaide.box.com/shared/static/62vo1sbau2yk2l646xkpy2f5shcmnctz.gz" | tar xvz
+wget -qO- "https://universityofadelaide.box.com/shared/static/5jhhdivfcl2odivqlumxgjwyh1agkvvi.gz" | tar xvz
 
 # Install java and fastQC
 sudo apt-get install -y python-software-properties debconf-utils
