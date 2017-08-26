@@ -21,11 +21,10 @@ rm fastqc_0.11.5+dfsg-3_all.deb
 # Install Sabre and bwa and add to PATH
 cd /opt/; sudo git clone https://github.com/najoshi/sabre.git; cd sabre; sudo make
 
-sudo echo 'export PATH=$PATH:/opt/sabre' >> /home/hub/.bashrc
-
 cd /opt/; sudo wget https://github.com/lh3/bwa/releases/download/v0.7.16/bwa-0.7.16a.tar.bz2; sudo tar xvjf bwa-0.7.16a.tar.bz2; cd bwa-0.7.16a; sudo make
 
-sudo echo 'export PATH=$PATH:/opt/bwa-0.7.16a' >> /home/hub/.bashrc
+# This doesnt seem to execute?
+sudo echo 'export PATH=$PATH:/opt/bwa-0.7.16a:/opt/sabre' >> /home/hub/.bashrc
 
 # Install cutadapt
 sudo pip install cutadapt
