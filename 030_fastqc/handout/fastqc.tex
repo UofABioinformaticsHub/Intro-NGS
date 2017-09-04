@@ -53,9 +53,9 @@ Look up the following options to find what they mean. \\
 Now we have two experiments, so firstly lets run the two paired-end whole-genome sequencing files. First we need to create the output directory, then we can run \texttt{fastqc} using 2 threads which will ensure the files are processed in parallel.
 This can be much quicker when dealing with large experiments.
 \begin{lstlisting}
-cd ~/rawData/WGS
-mkdir -p ~/QC/WGS/rawData
-fastqc -o ~/QC/WGS/rawData -t 2 WGS_SRR065388_1.fastq.gz WGS_SRR065388_2.fastq.gz
+cd rawData/WGS
+mkdir -p QC/WGS/rawData
+fastqc -o QC/WGS/rawData -t 2 WGS_SRR065388_1.fastq.gz WGS_SRR065388_2.fastq.gz
 \end{lstlisting}
 \end{steps}
 It's probably a good idea to scribble a note next to each line if you didn't understand what you did.
@@ -70,7 +70,7 @@ The above command gave both files to fastqc, told it where to write the output (
 The reports are in the html files, with all of the plots stored in the zip files.
 To look at the QC report for each file, we can use \texttt{firefox}.
 \begin{lstlisting}
-cd ~/QC/WGS/rawData
+cd QC/WGS/rawData
 ls -lh
 firefox WGS_SRR065388_1_fastqc.html WGS_SRR065388_2_fastqc.html &
 \end{lstlisting}
@@ -128,6 +128,8 @@ Generally, this would only be of note if drilling deeply to remove data from til
 Most of the time we don't factor in spatial effects, unless alternative approaches fail to address the issues we are dealing with.
 It can occasionally be used to request a repeat sequencing run, although if this has been a factor, it is likely that other plots will be more compelling.
 
+I this figure, blue is the highest quality score
+
 \paragraph*{Per Sequence Quality Scores}
 This is just the distribution of average quality scores for each sequence.
 There's not much of note for us to see here.
@@ -151,10 +153,10 @@ The whole-genome sequencing dataset is relatively "well-behaved", so let's look 
 Let's run \texttt{fastqc} \& inspect an RNA-Seq dataset.
 
 \begin{lstlisting}
-cd ~/rawData/small_RNA
-mkdir -p ~/QC/small_RNA/rawData
-fastqc -o ~/QC/small_RNA/rawData -t 2 SmallRNA_SRR2039540.fastq.gz
-cd ~/QC/small_RNA/rawData
+cd rawData/small_RNA
+mkdir -p QC/small_RNA/rawData
+fastqc -o QC/small_RNA/rawData -t 2 SmallRNA_SRR2039540.fastq.gz
+cd QC/small_RNA/rawData
 firefox SmallRNA_SRR2039540_fastqc.html &
 \end{lstlisting}
 
@@ -240,7 +242,7 @@ The overall summary in terms of PASS/FAIL is contained in the `summary.txt' file
 Open this file in the \texttt{less} pager, and once you've had a look type \texttt{q} to quit, as we have become familiar with.
 First make sure you are in the correct directory, then inspect these files using \texttt{less}.
 \begin{lstlisting}
-cd \~/QC/small\_RNA/rawData
+cd QC/small_RNA/rawData
 unzip -oc SmallRNA_SRR2039540_fastqc.zip '*summary.txt' | less
 \end{lstlisting}
 
