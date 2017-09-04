@@ -57,7 +57,7 @@ It will contain all chromosomes \& the mitochondrial sequences.
 \begin{steps}
 We can print out the first 10 lines using the \texttt{head} command.
 \begin{lstlisting}
-cd ~/rawData/
+cd rawData/
 gunzip cel1.fa.gz
 head cel1.fa
 \end{lstlisting}
@@ -119,19 +119,19 @@ You should be able to open a few of the files with the "less" command, however t
 \subsection{Aligning the reads}
 Because we only have a small subset of the actual sequencing run, we should be able to run this alignment in a reasonable period of time
 \begin{lstlisting}
-bwa mem Cel1 WGS_SRR2003569_1.fastq.gz WGS_SRR2003569_2.fastq.gz \
-        | samtools view -bhS -> WGS_SRR2003569.bam
+bwa mem Cel1 WGS_SRR065388_1.fastq.gz WGS_SRR065388_2.fastq.gz \
+        | samtools view -bhS -> WGS_SRR065388.bam
 \end{lstlisting}
 
 Let's break down this command a little. The first part of the command:
 \begin{lstlisting}[style=command_syntax]
-bwa mem Cel1 WGS/WGS_SRR2003569_1.fastq.gz WGS/WGS_SRR2003569_2.fastq.gz
+bwa mem Cel1 WGS_SRR065388_1.fastq.gz WGS_SRR065388_2.fastq.gz
 \end{lstlisting}
 will align our compressed sequenced reads to the Cel1 bwa index that we made.
 Usually you can create a SAM file (see next section) to store all the alignment data. SAM files however are text files which can take up a significant amount of disk space, so its much more efficient to pipe it to the \textit{samtools} command and create a compressed binary SAM file (called BAM).
 To do this, we run the program \textit{samtools}:
 \begin{lstlisting}[style=command_syntax]
-samtools view -bhS - > WGS_SRR2003569.bam
+samtools view -bhS - > WGS_SRR065388.bam
 \end{lstlisting}
 In this context, \textit{samtools view} is the general command that allows the conversion of the SAM to BAM.
 There is another more compressed version of the SAM file, called CRAM, which you can also create using \textit{samtools view}.
