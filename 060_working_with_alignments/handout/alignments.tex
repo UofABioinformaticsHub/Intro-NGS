@@ -25,7 +25,7 @@ For this section we will only look at BAM files, removing the need to convert al
 The reads from the previous dataset which mapped to \textit{C. elegans} should be in the folder \texttt{\~{}/rawData/WGS}.
 Let's look at the first 10 lines of the file.
 \begin{lstlisting}
-cd ~/rawData/WGS
+cd rawData/WGS
 samtools view -h WGS_SRR065388.bam | head -n10
 \end{lstlisting}
 \end{steps}
@@ -224,7 +224,7 @@ The second step will be to index the sorted file to enable faster file access by
 
 \begin{steps}
 \begin{lstlisting}
-cd ~/rawData/WGS
+cd rawData/WGS
 samtools sort WGS_SRR2003569.bam -o WGS_SRR2003569.sorted.bam
 samtools index WGS_SRR2003569.sorted.bam
 \end{lstlisting}
@@ -232,27 +232,6 @@ samtools index WGS_SRR2003569.sorted.bam
 
 The command \texttt{samtools index} then created a file with the exact same name as the input file, but with the extra suffix \texttt{.bai}, which indicates this is an index file.\\
 
-\begin{steps}
-Now that we've got our files ready to view we can load the IGV browser.
-This may take a minute or two so please be patient.
-
-\begin{lstlisting}
-/opt/local/IGV_2.3.90/igv.sh
-\end{lstlisting}
-\end{steps}
-
-\begin{steps}
-Once the browser has opened, go to the drop-down menu \& load the genome for \textit{Caenorhabditis elegans} (cel1).
-(This will create a .genome file in your \texttt{\~{}/igv} folder.)
-Now we can load our sorted .bam file using  \textit{File $>$ Load from File} in the top menu, and make sure you load the sorted .bam file.
-This will automatically check for the indexed file we created a minute ago. \\
-
-In the second ``button" go to the region chrI, then enter the word \textit{del-1} in the window next to this.
-This will take us to the gene \textit{del-1} and we will be able to see the reads in our .bam file that have been aligned to this gene.
-Unfortunately with these alignments, the further out we zoom we will begin to lose our alignment information.
-
-Have a look at the gene \textit{elf-1} as well, and have a look around by clicking the navigation at the very top of the graphical display.
-\end{steps}
 
 \section{Bonus For Those Well Ahead of the Pack}
 \begin{advanced}
