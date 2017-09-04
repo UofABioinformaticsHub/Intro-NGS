@@ -82,11 +82,11 @@ This can save considerable hard drive space, which is an important consideration
 \end{note}
 
 \begin{steps}
-We should still have a terminal open from the previous section \&, if necessary, use the \texttt{cd} command to make sure you are in the home ( \texttt{\~{}/}) directory.
+We should still have a terminal open from the previous section \&, if necessary, use the \texttt{cd} command to make sure you are in the home (\texttt{\~{}/} or (\texttt{/home/hub/})) directory.
 The command \texttt{zcat} unzips a file \& prints the output to the terminal, or standard output (\textit{stdout}).
 If we did this to these files, we would see a stream of data whizzing past in the terminal, but instead we can just pipe the output of \texttt{zcat} to the command head to view the first 10 lines of a file. \\
 \begin{lstlisting}
-cd ~/rawData/WGS
+cd rawData/WGS
 zcat WGS_SRR065388_1.fastq.gz | head -n8
 \end{lstlisting}
 \end{steps}
